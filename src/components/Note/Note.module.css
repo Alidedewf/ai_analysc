@@ -1,0 +1,93 @@
+.noteArea {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    /* Changed to row to accommodate side panel */
+    height: 100%;
+    background-color: white;
+    overflow: hidden;
+}
+
+.mainContainer {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    border-bottom: 1px solid transparent;
+}
+
+.navigation {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.navBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #888;
+    padding: 0.25rem;
+    border-radius: 4px;
+}
+
+.navBtn:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: #333;
+}
+
+.actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.actionBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    padding: 0.25rem;
+    border-radius: 4px;
+}
+
+.actionBtn:hover,
+.activeAction {
+    color: #333;
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+.placeholder {
+    max-width: 800px;
+    width: 100%;
+    text-align: left;
+}
+
+.metaInfo {
+    font-size: 0.9rem;
+    color: #888;
+    font-weight: 500;
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.title {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    line-height: 1.2;
+}

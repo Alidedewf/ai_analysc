@@ -2,34 +2,48 @@ const API_URL = 'http://localhost:8080';
 
 export const authService = {
     async login(email, password) {
-        const response = await fetch(`${API_URL}/auth/login`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email, password }),
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                if (email && password) {
+                    resolve({
+                        token: 'mock-jwt-token-12345',
+                        user: {
+                            id: 1,
+                            email: email,
+                            name: 'Test User'
+                        }
+                    });
+                } else {
+                    reject(new Error('Invalid credentials'));
+                }
+            }, 500);
         });
-
-        if (!response.ok) {
-            throw new Error('Login failed');
-        }
-
-        return response.json();
     },
 
     async register(fullName, email, password) {
-        const response = await fetch(`${API_URL}/auth/register`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ full_name: fullName, email, password }),
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                if (email && password && fullName) {
+                    resolve({
+                        token: 'mock-jwt-token-67890',
+                        user: {
+                            id: 2,
+                            email: email,
+                            name: fullName
+                        }
+                    });
+                } else {
+                    reject(new Error('Registration failed'));
+                }
+            }, 500);
         });
-
-        if (!response.ok) {
-            throw new Error('Registration failed');
-        }
-
-        return response.json();
     },
+
+    async logout() {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve();
+            }, 500);
+        });
+    }
 };

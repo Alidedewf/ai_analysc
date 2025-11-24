@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
-import { authService } from '../../api/authService';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import styles from './AuthForm.module.css';
 
 export const AuthForm = () => {
+    const { login, register } = useAuth();
+    const navigate = useNavigate();
     const [mode, setMode] = useState('login');
     const [isLoading, setIsLoading] = useState(false);
     const [errors, setErrors] = useState({});
@@ -42,15 +45,14 @@ export const AuthForm = () => {
 
         setIsLoading(true);
         try {
-            let response;
             if (mode === 'login') {
-                response = await authService.login(formData.email, formData.password);
+                await login(formData.email, formData.password);
             } else {
-                response = await authService.register(formData.fullName, formData.email, formData.password);
+                await register(formData.fullName, formData.email, formData.password);
             }
 
-            localStorage.setItem('token', response.token);
-            alert(`Successfully ${mode === 'login' ? 'logged in' : 'registered'}!`);
+            // alert(`Successfully ${mode === 'login' ? 'logged in' : 'registered'}!`);
+            navigate('/app');
         } catch (error) {
             console.error(error);
             alert('Authentication failed. Please try again.');

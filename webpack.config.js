@@ -9,9 +9,10 @@ module.exports = {
     clean: true,
   },
   devServer: {
-    port: 3000,
+    port: 3001,
     hot: true,
     open: true,
+    historyApiFallback: true,
   },
   module: {
     rules: [
@@ -30,7 +31,7 @@ module.exports = {
             loader: 'css-loader',
             options: {
               modules: {
-                auto: true, // Enable modules for files ending in .module.css
+                auto: true, 
                 localIdentName: '[name]__[local]--[hash:base64:5]',
                 namedExport: false,
               },

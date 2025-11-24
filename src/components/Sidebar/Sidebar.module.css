@@ -1,0 +1,232 @@
+.sidebar {
+    width: 280px;
+    height: 100%;
+    background-color: #f9f9f9;
+    border-right: 1px solid #e5e5e5;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 1rem;
+    flex-shrink: 0;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.logoIcon {
+    width: 32px;
+    height: 32px;
+    background-color: #7d1d40;
+    color: white;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 1.25rem;
+}
+
+.logoText {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #1a1a1a;
+}
+
+.notificationBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+}
+
+.searchContainer {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.searchIcon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+}
+
+.searchInput {
+    width: 100%;
+    padding: 0.625rem 1rem 0.625rem 2.5rem;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    background-color: white;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.searchInput:focus {
+    border-color: #7d1d40;
+}
+
+.newChatBtn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background-color: #f0f0f5;
+    border: none;
+    border-radius: 8px;
+    color: #7d1d40;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 2rem;
+    transition: background-color 0.2s;
+}
+
+.newChatBtn:hover {
+    background-color: #e5e5ea;
+}
+
+.section {
+    margin-bottom: 2rem;
+}
+
+.sectionTitle {
+    font-size: 0.8rem;
+    color: #888;
+    margin-bottom: 0.75rem;
+    font-weight: 500;
+}
+
+.menuItem {
+    margin-bottom: 0.5rem;
+}
+
+.menuHeader {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem;
+    color: #4a4a4a;
+    cursor: pointer;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.menuHeader:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+.menuItem.active .menuHeader {
+    background-color: #e6f0fa;
+    color: #007bff;
+}
+
+.subMenu {
+    margin-left: 1.5rem;
+    margin-top: 0.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.subMenuItem {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.5rem;
+    color: #666;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+.subMenuItem:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+    color: #333;
+}
+
+.historyList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.historyItem {
+    padding: 0.5rem;
+    color: #4a4a4a;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 0.95rem;
+}
+
+.historyItem:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+.footer {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e5e5;
+}
+
+.userProfile {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    background-color: #7d1d40;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 600;
+}
+
+.userInfo {
+    display: flex;
+    flex-direction: column;
+}
+
+.userName {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #1a1a1a;
+}
+
+.userRole {
+    font-size: 0.75rem;
+    color: #888;
+}
+
+.logoutBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #888;
+    padding: 0.5rem;
+    border-radius: 6px;
+}
+
+.logoutBtn:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: #d32f2f;
+}

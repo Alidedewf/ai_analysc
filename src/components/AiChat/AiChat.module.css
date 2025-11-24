@@ -1,0 +1,99 @@
+.aiPanel {
+    width: 350px;
+    background-color: #f9f9f9;
+    border-left: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.02);
+}
+
+.aiPanelHeader {
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+}
+
+.aiPanelTitle {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 0.25rem;
+}
+
+.aiPanelActions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.aiPanelBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    padding: 0.25rem;
+    border-radius: 4px;
+}
+
+.aiPanelBtn:hover,
+.activeAction {
+    color: #333;
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.aiPanelContent {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+}
+
+.aiInputContainer {
+    padding: 1rem;
+    background-color: #f9f9f9;
+}
+
+.aiInputWrapper {
+    background-color: white;
+    border-radius: 2rem;
+    padding: 0.5rem 0.5rem 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eee;
+}
+
+.aiInput {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.aiInput::placeholder {
+    color: #999;
+}
+
+.aiSendBtn {
+    background-color: #e0e0e0;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #666;
+    transition: background-color 0.2s;
+}
+
+.aiSendBtn:hover {
+    background-color: #d0d0d0;
+    color: #333;
+}
