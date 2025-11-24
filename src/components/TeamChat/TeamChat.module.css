@@ -1,0 +1,134 @@
+.panel {
+    width: 350px;
+    background-color: #f9f9f9;
+    border-left: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.02);
+}
+
+.header {
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+}
+
+.title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 0.25rem;
+}
+
+.actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.actionBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    padding: 0.25rem;
+    border-radius: 4px;
+}
+
+.actionBtn:hover,
+.activeAction {
+    color: #333;
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.searchContainer {
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.searchWrapper {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    padding: 0.5rem;
+}
+
+.searchIcon {
+    color: #999;
+    margin-right: 0.5rem;
+}
+
+.searchInput {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 0.9rem;
+}
+
+.content {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.chatItem {
+    display: flex;
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.chatItem:hover {
+    background-color: white;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    background-color: #e0e0e0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: #555;
+    margin-right: 1rem;
+}
+
+.chatInfo {
+    flex: 1;
+    overflow: hidden;
+}
+
+.chatHeader {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.25rem;
+}
+
+.chatName {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.chatTime {
+    font-size: 0.75rem;
+    color: #999;
+}
+
+.lastMessage {
+    display: block;
+    font-size: 0.85rem;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

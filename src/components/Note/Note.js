@@ -2,14 +2,15 @@ import React, { useState } from 'react';
 import { Share, Sparkles, MessageSquareText, MoreHorizontal, ChevronLeft, ChevronRight } from 'lucide-react';
 import styles from './Note.module.css';
 import { AiChat } from '../AiChat/AiChat';
+import { TeamChat } from '../TeamChat/TeamChat';
 import { useDashboard } from '../../context/DashboardContext';
 
 export const Note = () => {
     const { selectedTask } = useDashboard();
-    const [isAiChatOpen, setIsAiChatOpen] = useState(false);
+    const [activePanel, setActivePanel] = useState(null); // 'ai', 'team', or null
 
-    const toggleAiChat = () => {
-        setIsAiChatOpen(prev => !prev);
+    const togglePanel = (panel) => {
+        setActivePanel(prev => prev === panel ? null : panel);
     };
 
     return (
@@ -24,12 +25,17 @@ export const Note = () => {
                     <div className={styles.actions}>
                         <button className={styles.actionBtn}><Share size={20} /></button>
                         <button
-                            className={`${styles.actionBtn} ${isAiChatOpen ? styles.activeAction : ''}`}
-                            onClick={toggleAiChat}
+                            className={`${styles.actionBtn} ${activePanel === 'ai' ? styles.activeAction : ''}`}
+                            onClick={() => togglePanel('ai')}
                         >
                             <Sparkles size={20} />
                         </button>
-                        <button className={styles.actionBtn}><MessageSquareText size={20} /></button>
+                        <button
+                            className={`${styles.actionBtn} ${activePanel === 'team' ? styles.activeAction : ''}`}
+                            onClick={() => togglePanel('team')}
+                        >
+                            <MessageSquareText size={20} />
+                        </button>
                         <button className={styles.actionBtn}><MoreHorizontal size={20} /></button>
                     </div>
                 </header>
@@ -42,7 +48,8 @@ export const Note = () => {
                 </div>
             </div>
 
-            <AiChat isOpen={isAiChatOpen} toggleChat={toggleAiChat} />
+            <AiChat isOpen={activePanel === 'ai'} toggleChat={() => togglePanel('ai')} />
+            <TeamChat isOpen={activePanel === 'team'} toggleChat={() => togglePanel('team')} />
         </div>
     );
 };
