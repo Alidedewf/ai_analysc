@@ -13,25 +13,11 @@ import { useAuth } from '../../context/AuthContext';
 import { useDashboard } from '../../context/DashboardContext';
 import styles from './Sidebar.module.css';
 
-const MOCK_TASKS = {
-    reviewing: [
-        { id: 1, title: 'бизнес задача' },
-        { id: 2, title: 'бизнес задача' },
-        { id: 3, title: 'бизнес задача' },
-    ],
-    accepted: [
-        { id: 4, title: 'Принятая задача 1' },
-        { id: 5, title: 'Принятая задача 2' },
-    ],
-    rejected: [
-        { id: 6, title: 'Отклоненная задача 1' },
-    ]
-};
-
 const SECTIONS = [
     { id: 'reviewing', label: 'Рассматривается', icon: History },
     { id: 'accepted', label: 'Приняты', icon: CheckCircle },
     { id: 'rejected', label: 'Отклоненные', icon: XCircle },
+    { id: 'documents', label: 'Документы', icon: FileText },
 ];
 
 const MOCK_HISTORY = [
@@ -41,8 +27,8 @@ const MOCK_HISTORY = [
 
 export const Sidebar = () => {
     const { user, logout } = useAuth();
-    const { setSelectedTask } = useDashboard();
-    const [expandedSections, setExpandedSections] = useState({ reviewing: true });
+    const { setSelectedTask, tasks } = useDashboard();
+    const [expandedSections, setExpandedSections] = useState({ reviewing: true, documents: true });
 
     const toggleSection = (sectionId) => {
         setExpandedSections(prev => ({
@@ -52,7 +38,7 @@ export const Sidebar = () => {
     };
 
     const handleTaskClick = (task) => {
-        setSelectedTask({ ...task, date: 'Сегодня' }); 
+        setSelectedTask({ ...task, date: 'Сегодня' });
     };
 
     return (
@@ -95,7 +81,7 @@ export const Sidebar = () => {
                         </div>
                         {expandedSections[section.id] && (
                             <div className={styles.subMenu}>
-                                {MOCK_TASKS[section.id].map(task => (
+                                {tasks[section.id]?.map(task => (
                                     <div
                                         key={task.id}
                                         className={styles.subMenuItem}
@@ -105,7 +91,7 @@ export const Sidebar = () => {
                                         <span>{task.title}</span>
                                     </div>
                                 ))}
-                                {MOCK_TASKS[section.id].length === 0 && (
+                                {(!tasks[section.id] || tasks[section.id].length === 0) && (
                                     <div className={styles.subMenuItem} style={{ fontStyle: 'italic', color: '#999' }}>
                                         Нет задач
                                     </div>

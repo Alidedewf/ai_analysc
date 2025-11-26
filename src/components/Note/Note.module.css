@@ -1,10 +1,12 @@
+/* Notion-like Design */
+
 .noteArea {
     flex: 1;
     display: flex;
     flex-direction: row;
-    /* Changed to row to accommodate side panel */
     height: 100%;
     background-color: white;
+    /* Notion default background */
     overflow: hidden;
 }
 
@@ -14,80 +16,333 @@
     flex-direction: column;
     height: 100%;
     position: relative;
+    overflow: hidden;
 }
 
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 2rem;
-    border-bottom: 1px solid transparent;
+    padding: 12px 20px;
+    /* Compact header */
+    flex-shrink: 0;
+    background-color: white;
+    z-index: 10;
 }
 
 .navigation {
     display: flex;
-    gap: 0.5rem;
+    gap: 4px;
 }
 
 .navBtn {
     background: none;
     border: none;
     cursor: pointer;
-    color: #888;
-    padding: 0.25rem;
+    color: #37352f;
+    /* Notion text color */
+    padding: 4px;
     border-radius: 4px;
+    transition: background-color 0.1s;
 }
 
 .navBtn:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-    color: #333;
+    background-color: rgba(55, 53, 47, 0.08);
+    /* Notion hover */
 }
 
 .actions {
     display: flex;
-    gap: 1rem;
+    gap: 8px;
 }
 
 .actionBtn {
     background: none;
     border: none;
     cursor: pointer;
-    color: #666;
-    padding: 0.25rem;
+    color: #37352f;
+    padding: 4px 8px;
     border-radius: 4px;
+    transition: background-color 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .actionBtn:hover,
 .activeAction {
-    color: #333;
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: rgba(55, 53, 47, 0.08);
 }
 
 .content {
     flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 2rem;
+    padding: 0 96px 48px 96px;
+    /* Notion-like margins */
+    overflow-y: auto;
+    scroll-behavior: smooth;
+}
+
+/* Custom Scrollbar */
+.content::-webkit-scrollbar {
+    width: 10px;
+}
+
+.content::-webkit-scrollbar-thumb {
+    background-color: rgba(55, 53, 47, 0.16);
+    border-radius: 10px;
+    border: 2px solid white;
+}
+
+.content::-webkit-scrollbar-track {
+    background-color: transparent;
 }
 
 .placeholder {
-    max-width: 800px;
+    max-width: 900px;
+    /* Standard Notion page width */
     width: 100%;
-    text-align: left;
+    margin: 0 auto;
+    padding-top: 48px;
 }
 
 .metaInfo {
-    font-size: 0.9rem;
-    color: #888;
-    font-weight: 500;
-    display: block;
-    margin-bottom: 1rem;
+    font-size: 14px;
+    color: rgba(55, 53, 47, 0.65);
+    /* Notion secondary text */
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .title {
-    font-size: 3rem;
+    font-size: 40px;
     font-weight: 700;
-    color: #1a1a1a;
+    color: #37352f;
     line-height: 1.2;
+    margin-bottom: 32px;
+    letter-spacing: -0.02em;
+}
+
+/* Document Body Styles */
+.documentBody {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+    /* Notion font stack */
+    font-size: 16px;
+    line-height: 1.5;
+    color: #37352f;
+}
+
+.documentBody img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 24px auto;
+    border-radius: 4px;
+    /* Subtle radius */
+}
+
+.documentBody h1,
+.documentBody h2,
+.documentBody h3,
+.documentBody h4 {
+    color: #37352f;
+    margin-top: 1.4em;
+    margin-bottom: 4px;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.documentBody h1 {
+    font-size: 1.875em;
+}
+
+.documentBody h2 {
+    font-size: 1.5em;
+    border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+    padding-bottom: 6px;
+}
+
+.documentBody h3 {
+    font-size: 1.25em;
+}
+
+.documentBody h4 {
+    font-size: 1.1em;
+}
+
+.documentBody p {
+    margin-bottom: 0.5em;
+    /* Notion paragraphs are tighter */
+    min-height: 1.5em;
+}
+
+.documentBody ul,
+.documentBody ol {
+    margin-top: 4px;
+    margin-bottom: 4px;
+    padding-left: 24px;
+}
+
+.documentBody li {
+    margin-bottom: 2px;
+    padding-left: 2px;
+}
+
+/* Quote Block */
+.documentBody blockquote {
+    border-left: 3px solid #37352f;
+    margin: 16px 0;
+    padding-left: 16px;
+    font-size: 1.1em;
+    font-style: italic;
+}
+
+/* Code Block */
+.documentBody pre {
+    background-color: #f7f6f3;
+    /* Notion code block bg */
+    padding: 16px 20px;
+    border-radius: 4px;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    font-size: 14px;
+    overflow-x: auto;
+    margin: 16px 0;
+    color: #eb5757;
+}
+
+/* Tables */
+.documentBody table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 15px;
+}
+
+.documentBody th,
+.documentBody td {
+    border: 1px solid rgba(55, 53, 47, 0.09);
+    padding: 8px 10px;
+    text-align: left;
+}
+
+.documentBody th {
+    background-color: #f7f6f3;
+    font-weight: 600;
+}
+
+/* Charts (Custom Components) */
+.documentSection {
+    margin-bottom: 32px;
+}
+
+.sectionTitle {
+    font-size: 1.5em;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: #37352f;
+}
+
+.chartContainer {
+    padding: 24px;
+    background-color: white;
+    border: 1px solid rgba(55, 53, 47, 0.09);
+    border-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.barChart {
+    display: flex;
+    align-items: flex-end;
+    height: 240px;
+    gap: 32px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+.barWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    height: 100%;
+    justify-content: flex-end;
+}
+
+.bar {
+    width: 48px;
+    border-radius: 4px 4px 0 0;
+    transition: height 0.5s ease;
+    position: relative;
+    opacity: 0.9;
+}
+
+.bar:hover {
+    opacity: 1;
+}
+
+.barValue {
+    position: absolute;
+    top: -24px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: 500;
+    font-size: 13px;
+    color: rgba(55, 53, 47, 0.65);
+}
+
+.barLabel {
+    margin-top: 12px;
+    font-size: 14px;
+    color: #37352f;
+    text-align: center;
+}
+
+.chartDescription {
+    margin-top: 16px;
+    font-size: 14px;
+    color: rgba(55, 53, 47, 0.65);
+}
+
+/* Timeline */
+.timelineChart {
+    display: flex;
+    gap: 16px;
+}
+
+.timelineItem {
+    flex: 1;
+    background-color: #f7f6f3;
+    padding: 16px;
+    border-radius: 4px;
+    text-align: center;
+    position: relative;
+    border: 1px solid rgba(55, 53, 47, 0.05);
+}
+
+.timelineItem::after {
+    content: '→';
+    position: absolute;
+    right: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(55, 53, 47, 0.3);
+    font-size: 18px;
+}
+
+.timelineItem:last-child::after {
+    display: none;
+}
+
+.timelineLabel {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #37352f;
+    font-size: 15px;
+}
+
+.timelineText {
+    font-size: 13px;
+    color: rgba(55, 53, 47, 0.65);
 }
