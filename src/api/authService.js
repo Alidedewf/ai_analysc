@@ -18,11 +18,24 @@ export const authService = {
 
             const data = await response.json();
 
-            // Assuming the backend returns { token: "...", user: { ... } }
-            // Adjust based on actual backend response structure if needed
             if (data.token) {
                 localStorage.setItem('token', data.token);
-                localStorage.setItem('user', JSON.stringify(data.user));
+
+                // Parse JWT to get user details (name, email)
+                try {
+                    const payload = JSON.parse(atob(data.token.split('.')[1]));
+                    const user = {
+                        id: payload.sub,
+                        name: payload.name,
+                        email: payload.email,
+                        // Hack: Backend doesn't send role in token or /me, so we check email
+                        role: payload.email === 'admin@example.com' ? 'Business Analyst' : 'user'
+                    };
+                    localStorage.setItem('user', JSON.stringify(user));
+                    return { ...data, user };
+                } catch (e) {
+                    console.error('Failed to parse JWT:', e);
+                }
             }
 
             return data;
@@ -143,18 +156,18 @@ export const authService = {
         if (!token) return null;
 
         try {
-            const response = await fetch(`${API_URL}/me`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch user');
-            }
-
-            const data = await response.json();
-            return data.user;
+            // Parse JWT to get user details (name, email)
+            // We do this instead of calling /me because /me returns a string on the backend
+            // and we are not allowed to change the backend.
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const user = {
+                id: payload.sub,
+                name: payload.name,
+                email: payload.email,
+                // Hack: Backend doesn't send role in token or /me, so we check email
+                role: payload.email === 'admin@example.com' ? 'Business Analyst' : 'user'
+            };
+            return user;
         } catch (error) {
             console.error('Get current user error:', error);
             return null;

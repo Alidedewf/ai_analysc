@@ -9,7 +9,8 @@ import {
     LogOut,
     Bell,
     Trash2,
-    Users
+    Users,
+    UserPlus
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useDashboard } from '../../context/DashboardContext';
@@ -212,10 +213,19 @@ export const Sidebar = () => {
                         <span className={styles.userRole}>{user?.role || 'Пользователь'}</span>
                     </div>
                 </div>
-                {user?.role === 'Business Analyst' && (
-                    <button className={styles.logoutBtn} title="Управление командой" onClick={() => setShowUserManagement(true)}>
-                        <Users size={18} />
-                    </button>
+                {/* Debug log */}
+                {console.log('Sidebar user:', user)}
+
+                {/* Allow 'Business Analyst', 'admin' roles OR specific email */}
+                {(user?.role === 'Business Analyst' || user?.role === 'admin' || user?.email === 'admin@example.com') && (
+                    <>
+                        <button className={styles.logoutBtn} title="Добавить пользователя" onClick={() => setShowUserManagement(true)}>
+                            <UserPlus size={18} />
+                        </button>
+                        <button className={styles.logoutBtn} title="Управление командой" onClick={() => setShowUserManagement(true)}>
+                            <Users size={18} />
+                        </button>
+                    </>
                 )}
                 <button onClick={logout} className={styles.logoutBtn}>
                     <LogOut size={18} />

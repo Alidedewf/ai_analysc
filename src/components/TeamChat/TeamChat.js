@@ -9,13 +9,12 @@ export const TeamChat = ({ isOpen, toggleChat }) => {
     const [messages, setMessages] = useState({}); // { userId: [msgs] }
     const [input, setInput] = useState('');
     const [isConnected, setIsConnected] = useState(false);
-    const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
-    const [newUser, setNewUser] = useState({ name: '', email: '', password: '', role: 'user', position: '' });
     const wsRef = useRef(null);
     const messagesEndRef = useRef(null);
 
     const currentUser = authService.getUser();
-    const isAdmin = currentUser?.role === 'Business Analyst';
+    console.log('TeamChat currentUser:', currentUser); // Debug log
+    const isAdmin = currentUser?.role === 'Business Analyst' || currentUser?.role === 'admin';
 
     useEffect(() => {
         if (isOpen) {
@@ -177,20 +176,6 @@ export const TeamChat = ({ isOpen, toggleChat }) => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
 
-    const handleCreateUser = async (e) => {
-        e.preventDefault();
-        try {
-            await authService.createUser(newUser.name, newUser.email, newUser.password, newUser.role, newUser.position);
-            setIsCreateUserOpen(false);
-            setNewUser({ name: '', email: '', password: '', role: 'user', position: '' });
-            fetchUsers(); // Refresh list
-            alert('Пользователь успешно создан');
-        } catch (error) {
-            console.error('Failed to create user:', error);
-            alert('Ошибка при создании пользователя: ' + error.message);
-        }
-    };
-
     if (!isOpen) return null;
 
     return (
@@ -205,15 +190,6 @@ export const TeamChat = ({ isOpen, toggleChat }) => {
                     <>
                         <span className={styles.title}>ЧАТЫ</span>
                         <div className={styles.actions}>
-                            {isAdmin && (
-                                <button
-                                    className={styles.actionBtn}
-                                    onClick={() => setIsCreateUserOpen(true)}
-                                    title="Создать пользователя"
-                                >
-                                    <UserPlus size={18} />
-                                </button>
-                            )}
                             <button
                                 className={`${styles.actionBtn} ${isOpen ? styles.activeAction : ''}`}
                                 onClick={toggleChat}
@@ -251,62 +227,6 @@ export const TeamChat = ({ isOpen, toggleChat }) => {
                             </div>
                         ))}
                     </div>
-
-                    {isCreateUserOpen && (
-                        <div className={styles.modalOverlay}>
-                            <div className={styles.modal}>
-                                <div className={styles.modalHeader}>
-                                    <h3>Новый сотрудник</h3>
-                                    <button onClick={() => setIsCreateUserOpen(false)} className={styles.closeBtn}>
-                                        <X size={20} />
-                                    </button>
-                                </div>
-                                <form onSubmit={handleCreateUser} className={styles.createForm}>
-                                    <input
-                                        type="text"
-                                        placeholder="Имя Фамилия"
-                                        value={newUser.name}
-                                        onChange={e => setNewUser({ ...newUser, name: e.target.value })}
-                                        required
-                                        className={styles.modalInput}
-                                    />
-                                    <input
-                                        type="email"
-                                        placeholder="Email"
-                                        value={newUser.email}
-                                        onChange={e => setNewUser({ ...newUser, email: e.target.value })}
-                                        required
-                                        className={styles.modalInput}
-                                    />
-                                    <input
-                                        type="password"
-                                        placeholder="Пароль"
-                                        value={newUser.password}
-                                        onChange={e => setNewUser({ ...newUser, password: e.target.value })}
-                                        required
-                                        className={styles.modalInput}
-                                    />
-                                    <input
-                                        type="text"
-                                        placeholder="Должность (например, Разработчик)"
-                                        value={newUser.position}
-                                        onChange={e => setNewUser({ ...newUser, position: e.target.value })}
-                                        required
-                                        className={styles.modalInput}
-                                    />
-                                    <select
-                                        value={newUser.role}
-                                        onChange={e => setNewUser({ ...newUser, role: e.target.value })}
-                                        className={styles.modalSelect}
-                                    >
-                                        <option value="user">Сотрудник</option>
-                                        <option value="admin">Администратор</option>
-                                    </select>
-                                    <button type="submit" className={styles.submitBtn}>Создать</button>
-                                </form>
-                            </div>
-                        </div>
-                    )}
                 </>
             ) : (
                 <>

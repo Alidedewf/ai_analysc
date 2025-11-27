@@ -4,9 +4,8 @@ import { useAuth } from '../../context/AuthContext';
 import styles from './AuthForm.module.css';
 
 export const AuthForm = () => {
-    const { login, register } = useAuth();
+    const { login } = useAuth();
     const navigate = useNavigate();
-    const [isLogin, setIsLogin] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const [errors, setErrors] = useState({});
 
@@ -18,10 +17,6 @@ export const AuthForm = () => {
 
     const validate = () => {
         const newErrors = {};
-
-        if (!isLogin && !formData.name) {
-            newErrors.name = 'Name is required';
-        }
 
         if (!formData.email) {
             newErrors.email = 'Email is required';
@@ -45,15 +40,11 @@ export const AuthForm = () => {
 
         setIsLoading(true);
         try {
-            if (isLogin) {
-                await login(formData.email, formData.password);
-            } else {
-                await register(formData.name, formData.email, formData.password);
-            }
+            await login(formData.email, formData.password);
             navigate('/app');
         } catch (error) {
             console.error(error);
-            alert((isLogin ? 'Login' : 'Registration') + ' failed. ' + error.message);
+            alert('Login failed. ' + error.message);
         } finally {
             setIsLoading(false);
         }
@@ -78,33 +69,14 @@ export const AuthForm = () => {
         <div className={styles.container}>
             <div className={styles.tabs}>
                 <button
-                    className={`${styles.tab} ${isLogin ? styles.active : ''}`}
-                    onClick={() => setIsLogin(true)}
+                    className={`${styles.tab} ${styles.active}`}
+                    onClick={() => { }}
                 >
                     Login
-                </button>
-                <button
-                    className={`${styles.tab} ${!isLogin ? styles.active : ''}`}
-                    onClick={() => setIsLogin(false)}
-                >
-                    Register
                 </button>
             </div>
 
             <form className={styles.form} onSubmit={handleSubmit}>
-                {!isLogin && (
-                    <div className={styles.inputGroup}>
-                        <label className={styles.label}>Full Name</label>
-                        <input
-                            type="text"
-                            className={styles.input}
-                            value={formData.name}
-                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                            placeholder="John Doe"
-                        />
-                        {errors.name && <span className={styles.error}>{errors.name}</span>}
-                    </div>
-                )}
                 <div className={styles.inputGroup}>
                     <label className={styles.label}>Email</label>
                     <input
@@ -130,7 +102,7 @@ export const AuthForm = () => {
                 </div>
 
                 <button type="submit" className={styles.submitButton} disabled={isLoading}>
-                    {isLoading ? <div className={styles.spinner} /> : (isLogin ? 'Sign In' : 'Create Account')}
+                    {isLoading ? <div className={styles.spinner} /> : 'Sign In'}
                 </button>
 
                 <div className={styles.divider}>
