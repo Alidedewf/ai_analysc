@@ -120,33 +120,7 @@ export const TeamChat = ({ isOpen, toggleChat }) => {
         }
     };
 
-    const sendMessage = () => {
-        if (!input.trim() || !selectedUser || !wsRef.current) return;
 
-        const payload = {
-            receiver_id: selectedUser.id,
-            content: input
-        };
-
-        wsRef.current.send(JSON.stringify({
-            type: 'private_message',
-            payload: JSON.stringify(payload) // Double serialization as per backend expectation? 
-            // Wait, backend expects `json.RawMessage` for payload, so yes, the inner payload should be JSON object, 
-            // but `wsMsg` struct has `Payload json.RawMessage`. 
-            // So `JSON.stringify({ type: ..., payload: { ... } })` should work if payload is an object.
-            // Let's check backend: `json.Unmarshal(msg.Payload, &p)`. Yes, it expects the payload field to be the JSON of the struct.
-        }));
-
-        // Actually, `json.RawMessage` keeps the bytes. `json.Unmarshal` on it works if it's a valid JSON object.
-        // So sending `{ type: "...", payload: { ... } }` is correct.
-
-        wsRef.current.send(JSON.stringify({
-            type: 'private_message',
-            payload: payload // This will be marshaled as part of the outer JSON
-        }));
-
-        setInput('');
-    };
 
     // Fix for the double send above and clarification:
     // Backend: `var msg wsMsg` -> `json.Unmarshal(data, &msg)`

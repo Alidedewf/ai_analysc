@@ -22,7 +22,7 @@ const SECTIONS = [
     { id: 'reviewing', label: 'Рассматривается', icon: History },
     { id: 'accepted', label: 'Приняты', icon: CheckCircle },
     { id: 'rejected', label: 'Отклоненные', icon: XCircle },
-    { id: 'documents', label: 'Документы', icon: FileText },
+    { id: 'documents', label: 'Ваши проекты', icon: FileText },
 ];
 
 export const Sidebar = () => {
@@ -163,10 +163,10 @@ export const Sidebar = () => {
                     <span>Новый проект</span>
                 </button>
 
+                {/* BUSINESS REQUESTS SECTION */}
                 <div className={styles.section}>
-                    <h3 className={styles.sectionTitle}>Запросы</h3>
-
-                    {SECTIONS.map(section => {
+                    <h3 className={styles.sectionTitle}>БИЗНЕС ЗАПРОСЫ</h3>
+                    {SECTIONS.filter(s => s.id !== 'documents').map(section => {
                         const sectionTasks = tasks[section.id] || [];
                         const filteredTasks = filterTasks(sectionTasks);
 
@@ -201,7 +201,7 @@ export const Sidebar = () => {
                                                 <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{task.title}</span>
                                                 <button
                                                     className={styles.deleteItemBtn}
-                                                    onClick={(e) => handleDelete(e, task.id, section.id === 'documents' ? 'document' : 'session')}
+                                                    onClick={(e) => handleDelete(e, task.id, 'document')}
                                                     title="Удалить"
                                                 >
                                                     <Trash2 size={14} />
@@ -218,6 +218,48 @@ export const Sidebar = () => {
                             </div>
                         )
                     })}
+                </div>
+
+                {/* YOUR PROJECTS SECTION */}
+                <div className={styles.section}>
+                    <h3 className={styles.sectionTitle}>ВАШИ ПРОЕКТЫ</h3>
+                    {(() => {
+                        const section = { id: 'documents', label: 'Ваши проекты', icon: FileText };
+                        const sectionTasks = tasks[section.id] || [];
+                        const filteredTasks = filterTasks(sectionTasks);
+
+                        if (searchQuery && filteredTasks.length === 0) return null;
+
+                        return (
+                            <div className={styles.projectList}>
+                                {filteredTasks.map(task => (
+                                    <div
+                                        key={task.id}
+                                        className={`${styles.subMenuItem} ${selectedTask?.id === task.id ? styles.activeItem : ''}`}
+                                        onClick={() => handleTaskClick(task)}
+                                        draggable
+                                        onDragStart={(e) => handleDragStart(e, task, section.id)}
+                                    >
+                                        <FileText size={16} />
+                                        <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{task.title}</span>
+                                        <span style={{ fontSize: '12px', opacity: 0.5, marginLeft: '8px' }}>{task.date}</span>
+                                        <button
+                                            className={styles.deleteItemBtn}
+                                            onClick={(e) => handleDelete(e, task.id, 'session')}
+                                            title="Удалить"
+                                        >
+                                            <Trash2 size={14} />
+                                        </button>
+                                    </div>
+                                ))}
+                                {filteredTasks.length === 0 && (
+                                    <div className={styles.subMenuItem} style={{ fontStyle: 'italic', color: '#999' }}>
+                                        Нет проектов
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })()}
                 </div>
 
 

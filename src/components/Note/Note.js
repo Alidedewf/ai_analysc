@@ -12,7 +12,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
 export const Note = () => {
-    const { selectedTask, allContent, addTask } = useDashboard();
+    const { selectedTask, allContent, addTask, refreshData } = useDashboard();
     const [activePanel, setActivePanel] = useState(null);
     const fileInputRef = useRef(null);
 
@@ -77,7 +77,7 @@ export const Note = () => {
         try {
             await dashboardService.approveDraft(selectedTask.originalId);
             alert("Document approved successfully!");
-            // Optionally refresh drafts or update UI state
+            await refreshData();
         } catch (error) {
             console.error("Approve failed:", error);
             alert("Failed to approve document");

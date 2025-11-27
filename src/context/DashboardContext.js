@@ -15,72 +15,56 @@ export const DashboardProvider = ({ children }) => {
     const [allContent, setAllContent] = useState({});
 
     useEffect(() => {
-        loadSessions();
+        refreshData();
     }, []);
 
-    const loadSessions = async () => {
-        const [sessions, drafts] = await Promise.all([
+    const refreshData = async () => {
+        const [sessions, requests] = await Promise.all([
             dashboardService.fetchSessions(),
-            dashboardService.fetchDrafts()
+            dashboardService.fetchBusinessRequests()
         ]);
 
-        const newTasks = { reviewing: [], accepted: [], rejected: [] };
+        const newTasks = { reviewing: [], accepted: [], rejected: [], documents: [] };
         const newContent = {};
 
-        // Process sessions
+        // 1. Process Business Requests (Drafts) -> reviewing, accepted, rejected
+        const processRequest = (draft, status) => {
+            const task = {
+                id: `draft-${draft.id}`,
+                title: draft.title,
+                date: new Date(draft.created_at).toLocaleDateString(),
+                isDraft: true,
+                originalId: draft.id,
+                sessionId: draft.session_id || null,
+                status: status
+            };
+            newTasks[status].push(task);
+
+            newContent[`draft-${draft.id}`] = {
+                type: 'document',
+                title: draft.title,
+                content: draft.content
+            };
+        };
+
+        (requests.reviewing || []).forEach(d => processRequest(d, 'reviewing'));
+        (requests.accepted || []).forEach(d => processRequest(d, 'accepted'));
+        (requests.rejected || []).forEach(d => processRequest(d, 'rejected'));
+
+        // 2. Process Sessions -> documents (Your Projects)
         sessions.forEach(session => {
             const task = {
                 id: session.id,
                 title: session.title || `Session #${session.id}`,
                 date: new Date(session.created_at * 1000).toLocaleDateString()
             };
-
-            const status = session.status || 'reviewing';
-            if (newTasks[status]) {
-                newTasks[status].push(task);
-            } else {
-                newTasks.reviewing.push(task);
-            }
+            newTasks.documents.push(task);
 
             newContent[session.id] = {
                 type: 'chat',
                 title: task.title,
                 content: 'Chat session content...'
             };
-        });
-
-        // Process drafts (add to 'reviewing' or a new section if UI supported it, for now adding to reviewing as 'Draft: ...')
-        // Or better, let's keep them separate in state if we want a separate section in Sidebar.
-        // But Sidebar uses `tasks` object. Let's add a 'documents' key to tasks.
-        newTasks.documents = [];
-
-        drafts.forEach(draft => {
-            const docTask = {
-                id: `draft-${draft.ID}`,
-                title: draft.title,
-                date: new Date(draft.created_at * 1000).toLocaleDateString(),
-                isDraft: true,
-                originalId: draft.ID,
-                sessionId: draft.session_id || null
-            };
-            newTasks.documents.push(docTask);
-
-            const contentData = {
-                type: 'document',
-                title: draft.title,
-                content: draft.content
-            };
-
-            newContent[`draft-${draft.ID}`] = contentData;
-
-            // If this draft belongs to a session, also update the session's content
-            if (draft.session_id && newContent[draft.session_id]) {
-                newContent[draft.session_id] = {
-                    ...newContent[draft.session_id],
-                    ...contentData,
-                    type: 'document' // Override type to document so Note renders it
-                };
-            }
         });
 
         setTasks(newTasks);
@@ -158,7 +142,7 @@ export const DashboardProvider = ({ children }) => {
                 // Session
                 await dashboardService.deleteSession(id);
             }
-            await loadSessions(); // Refresh list to sync with backend
+            await refreshData(); // Refresh list to sync with backend
 
             // If deleted item was selected, deselect it
             if (selectedTask?.id === id) {
@@ -180,7 +164,7 @@ export const DashboardProvider = ({ children }) => {
         setIsCreating(true);
         try {
             const session = await dashboardService.createSession('New Project');
-            await loadSessions(); // Refresh list
+            await refreshData(); // Refresh list
 
             // Select the new session immediately
             setSelectedTask({
@@ -195,69 +179,8 @@ export const DashboardProvider = ({ children }) => {
         }
     };
 
-    const refreshDrafts = async () => {
-        const drafts = await dashboardService.fetchDrafts();
-        const newDocuments = [];
-        const newContentUpdates = {};
-
-        drafts.forEach(draft => {
-            const docTask = {
-                id: `draft-${draft.ID}`,
-                title: draft.title,
-                date: new Date(draft.created_at * 1000).toLocaleDateString(),
-                isDraft: true,
-                originalId: draft.ID,
-                sessionId: draft.session_id || null
-            };
-            newDocuments.push(docTask);
-
-            newContentUpdates[`draft-${draft.ID}`] = {
-                type: 'document',
-                title: draft.title,
-                content: draft.content
-            };
-
-            // If this draft belongs to a session, also update the session's content in the update map
-            if (draft.session_id) {
-                // We need to know if the session exists in allContent to update it safely,
-                // but here we are just preparing updates.
-                // We can assume if we have a session_id, we want to update that key too.
-                newContentUpdates[draft.session_id] = {
-                    type: 'document',
-                    title: draft.title,
-                    content: draft.content
-                };
-            }
-        });
-
-        setTasks(prev => ({
-            ...prev,
-            documents: newDocuments
-        }));
-
-        setAllContent(prev => ({
-            ...prev,
-            ...newContentUpdates
-        }));
-
-        // Also reload sessions to update titles in the sidebar if they changed
-        const sessions = await dashboardService.fetchSessions();
-        setTasks(prev => {
-            const updatedReviewing = prev.reviewing.map(task => {
-                const session = sessions.find(s => s.id === task.id);
-                if (session) {
-                    return { ...task, title: session.title };
-                }
-                return task;
-            });
-            return { ...prev, reviewing: updatedReviewing };
-        });
-    };
-
-
-
     return (
-        <DashboardContext.Provider value={{ selectedTask, setSelectedTask, tasks, allContent, addTask, clearAll, moveTask, refreshDrafts, createNewProject, deleteItem }}>
+        <DashboardContext.Provider value={{ selectedTask, setSelectedTask, tasks, allContent, addTask, clearAll, moveTask, refreshData, createNewProject, deleteItem }}>
             {children}
         </DashboardContext.Provider>
     );

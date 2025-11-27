@@ -47,6 +47,27 @@ export const dashboardService = {
             return [];
         }
     },
+    async fetchBusinessRequests() {
+        const token = authService.getToken();
+        if (!token) return { reviewing: [], accepted: [], rejected: [] };
+
+        try {
+            const response = await fetch(`${API_URL}/api/requests`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch business requests');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching business requests:', error);
+            return { reviewing: [], accepted: [], rejected: [] };
+        }
+    },
     async fetchSessionMessages(sessionId) {
         const token = authService.getToken();
         if (!token) return [];
@@ -76,10 +97,6 @@ export const dashboardService = {
         try {
             const responses = await Promise.all([
                 fetch(`${API_URL}/sessions`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                }),
-                fetch(`${API_URL}/drafts`, {
                     method: 'DELETE',
                     headers: { 'Authorization': `Bearer ${token}` }
                 })

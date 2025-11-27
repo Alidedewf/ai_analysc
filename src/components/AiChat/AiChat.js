@@ -10,7 +10,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
 export const AiChat = ({ isOpen, toggleChat }) => {
-    const { refreshDrafts, selectedTask, allContent } = useDashboard();
+    const { refreshData, selectedTask, allContent } = useDashboard();
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
     const [isConnected, setIsConnected] = useState(false);
@@ -133,12 +133,20 @@ export const AiChat = ({ isOpen, toggleChat }) => {
             console.log('Connected to AI Chat');
             setIsConnected(true);
 
-            // Only start a NEW session if we don't have one selected
-            if (!selectedTask || selectedTask.id === 'default' || selectedTask.isDraft) {
+            // Only start a NEW session if we don't have one selected OR if the selected task (draft) has no linked session
+            const hasLinkedSession = selectedTask?.sessionId;
+            const isProject = selectedTask?.id && selectedTask.id !== 'default' && !selectedTask.isDraft;
+
+            if ((!selectedTask || selectedTask.id === 'default') || (selectedTask.isDraft && !hasLinkedSession)) {
                 ws.send(JSON.stringify({
                     type: 'start_session',
                     payload: { title: 'New Chat' }
                 }));
+            } else if (hasLinkedSession || isProject) {
+                // We have a session. We might want to "join" it or just ensure we use its ID.
+                // Since backend is stateless, we just don't send start_session.
+                // But we should ensure local sessionId is set (which loadHistory does).
+                console.log('Attaching to existing session:', hasLinkedSession || selectedTask.id);
             } else {
                 // We are in an existing session context. 
                 // The backend WS might need to know which session we are attaching to, 
@@ -254,7 +262,7 @@ export const AiChat = ({ isOpen, toggleChat }) => {
                     author: 'ai',
                     text: `📄 Document Created: "${message.payload.title || 'Business Analysis Report'}"`
                 }]);
-                refreshDrafts();
+                refreshData();
                 setIsThinking(false);
                 break;
             default:
