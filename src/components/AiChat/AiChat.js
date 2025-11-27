@@ -174,13 +174,20 @@ export const AiChat = ({ isOpen, toggleChat }) => {
                 break;
             case 'questionnaire':
                 // Handle questionnaire
-                setMessages(prev => [...prev, {
-                    id: Date.now(),
-                    author: 'ai',
-                    type: 'questionnaire',
-                    questions: message.payload.questions,
-                    text: 'Please answer the following questions:'
-                }]);
+                // Backend sends flat JSON for questionnaire, so we check root or payload
+                const questions = message.questions || (message.payload && message.payload.questions);
+
+                if (questions) {
+                    setMessages(prev => [...prev, {
+                        id: Date.now(),
+                        author: 'ai',
+                        type: 'questionnaire',
+                        questions: questions,
+                        text: 'Please answer the following questions:'
+                    }]);
+                } else {
+                    console.error('Invalid questionnaire format:', message);
+                }
                 setIsThinking(false);
                 break;
             case 'error':

@@ -40,7 +40,8 @@ export const dashboardService = {
                 throw new Error('Failed to fetch drafts');
             }
 
-            return await response.json();
+            const data = await response.json();
+            return data.drafts || [];
         } catch (error) {
             console.error('Error fetching drafts:', error);
             return [];
