@@ -3,8 +3,12 @@ import { Share, Sparkles, MessageSquareText, MoreHorizontal, ChevronLeft, Chevro
 import styles from './Note.module.css';
 import { AiChat } from '../AiChat/AiChat';
 import { TeamChat } from '../TeamChat/TeamChat';
+import { Onboarding } from '../Onboarding/Onboarding';
+import { RequirementGuide } from '../RequirementGuide/RequirementGuide';
 import { useDashboard } from '../../context/DashboardContext';
 import mammoth from 'mammoth';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export const Note = () => {
     const { selectedTask, allContent, addTask } = useDashboard();
@@ -133,24 +137,37 @@ export const Note = () => {
                 </header>
 
                 <div className={styles.content}>
-                    <div className={styles.placeholder}>
-                        <span className={styles.metaInfo}>
-                            {taskContent?.type === 'uploaded' ? 'Загруженный документ' : `Тимур Губайдуллин отредактировал ${selectedTask?.date || 'недавно'}`}
-                        </span>
-                        <h1 className={styles.title}>
-                            {taskContent?.title || selectedTask?.title || 'Выберите задачу'}
-                        </h1>
+                    {selectedTask?.id === 'default' ? (
+                        <Onboarding />
+                    ) : (
+                        <div className={styles.placeholder}>
+                            <span className={styles.metaInfo}>
+                                {taskContent?.type === 'uploaded' ? 'Загруженный документ' : `Тимур Губайдуллин отредактировал ${selectedTask?.date || 'недавно'}`}
+                            </span>
+                            <h1 className={styles.title}>
+                                {taskContent?.title || selectedTask?.title || 'Выберите задачу'}
+                            </h1>
 
-                        {taskContent && (
-                            <div className={styles.documentBody}>
-                                {taskContent.type === 'uploaded' ? (
-                                    <div dangerouslySetInnerHTML={{ __html: taskContent.content }} />
-                                ) : (
-                                    taskContent.sections?.map(renderSection)
-                                )}
-                            </div>
-                        )}
-                    </div>
+                            {taskContent && (
+                                <div className={styles.documentBody}>
+                                    {/* Show RequirementGuide if content is the default placeholder */}
+                                    {taskContent.content === 'Chat session content...' ? (
+                                        <RequirementGuide onOpenChat={() => togglePanel('ai')} />
+                                    ) : taskContent.type === 'uploaded' ? (
+                                        <div dangerouslySetInnerHTML={{ __html: taskContent.content }} />
+                                    ) : taskContent.type === 'document' ? (
+                                        <div className={styles.markdownContent}>
+                                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                                {taskContent.content}
+                                            </ReactMarkdown>
+                                        </div>
+                                    ) : (
+                                        taskContent.sections?.map(renderSection)
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
 

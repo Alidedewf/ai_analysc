@@ -16,6 +16,20 @@
     margin-bottom: 1.5rem;
 }
 
+.scrollableContent {
+    flex: 1;
+    overflow-y: auto;
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+}
+
+.scrollableContent::-webkit-scrollbar {
+    display: none;
+}
+
 .logo {
     display: flex;
     align-items: center;
@@ -149,11 +163,47 @@
     font-size: 0.9rem;
     cursor: pointer;
     border-radius: 6px;
+    position: relative;
+    transition: background-color 0.2s;
 }
 
 .subMenuItem:hover {
-    background-color: rgba(0, 0, 0, 0.03);
+    background-color: rgba(0, 0, 0, 0.05);
     color: #333;
+}
+
+.activeItem {
+    background-color: #e6f0fa !important;
+    color: #007bff !important;
+    font-weight: 500;
+}
+
+.activeItem .deleteItemBtn {
+    opacity: 1;
+    /* Always show delete button on active item if desired, or keep hidden */
+}
+
+.deleteItemBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #999;
+    padding: 4px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.subMenuItem:hover .deleteItemBtn {
+    opacity: 1;
+}
+
+.deleteItemBtn:hover {
+    color: #d32f2f;
+    background-color: rgba(211, 47, 47, 0.1);
 }
 
 .historyList {
@@ -229,4 +279,29 @@
 .logoutBtn:hover {
     background-color: rgba(0, 0, 0, 0.05);
     color: #d32f2f;
+}
+
+.clearContainer {
+    padding: 0 1rem;
+    margin-top: 1rem;
+}
+
+.clearBtn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: none;
+    border: 1px solid #ffcccc;
+    border-radius: 6px;
+    color: #d32f2f;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.clearBtn:hover {
+    background-color: #fff5f5;
+    border-color: #d32f2f;
 }

@@ -7,7 +7,8 @@ import {
     CheckCircle,
     XCircle,
     LogOut,
-    Bell
+    Bell,
+    Trash2
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useDashboard } from '../../context/DashboardContext';
@@ -20,15 +21,13 @@ const SECTIONS = [
     { id: 'documents', label: 'Документы', icon: FileText },
 ];
 
-const MOCK_HISTORY = [
-    { id: 1, title: 'общий (Пример каналы)', date: 'Вчера' },
-    { id: 2, title: 'Анализ конкурентов', date: '2 дня назад' },
-];
+
 
 export const Sidebar = () => {
     const { user, logout } = useAuth();
-    const { setSelectedTask, tasks } = useDashboard();
-    const [expandedSections, setExpandedSections] = useState({ reviewing: true, documents: true });
+    const { selectedTask, setSelectedTask, tasks, clearAll, moveTask, createNewProject, deleteItem } = useDashboard();
+    const [expandedSections, setExpandedSections] = useState({});
+    const [searchQuery, setSearchQuery] = useState('');
 
     const toggleSection = (sectionId) => {
         setExpandedSections(prev => ({
@@ -39,6 +38,44 @@ export const Sidebar = () => {
 
     const handleTaskClick = (task) => {
         setSelectedTask({ ...task, date: 'Сегодня' });
+    };
+
+    const handleDelete = (e, id, type) => {
+        e.stopPropagation();
+        deleteItem(id, type);
+    };
+
+    const filterTasks = (taskList) => {
+        if (!searchQuery) return taskList;
+        return taskList.filter(task =>
+            task.title.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+    };
+
+    const handleDragStart = (e, task, sourceCategory) => {
+        e.dataTransfer.setData('taskId', task.id);
+        e.dataTransfer.setData('sourceCategory', sourceCategory);
+    };
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+    };
+
+    const handleDrop = (e, targetCategory) => {
+        e.preventDefault();
+        const taskId = e.dataTransfer.getData('taskId');
+        const sourceCategory = e.dataTransfer.getData('sourceCategory');
+
+        // Convert string ID to number if needed (for mock data)
+        const numericId = Number(taskId);
+        const finalId = isNaN(numericId) ? taskId : numericId;
+
+        moveTask(finalId, sourceCategory, targetCategory);
+
+        // Expand target section if collapsed
+        if (!expandedSections[targetCategory]) {
+            toggleSection(targetCategory);
+        }
     };
 
     return (
@@ -53,63 +90,93 @@ export const Sidebar = () => {
                 </button>
             </div>
 
-            <div className={styles.searchContainer}>
-                <Search className={styles.searchIcon} size={18} />
-                <input
-                    type="text"
-                    placeholder="Поиск"
-                    className={styles.searchInput}
-                />
-            </div>
+            <div className={styles.scrollableContent}>
+                <div className={styles.searchContainer}>
+                    <Search className={styles.searchIcon} size={18} />
+                    <input
+                        type="text"
+                        placeholder="Поиск"
+                        className={styles.searchInput}
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                </div>
 
-            <button className={styles.newChatBtn}>
-                <Plus size={20} />
-                <span>Новый проект</span>
-            </button>
+                <button
+                    className={styles.newChatBtn}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        createNewProject();
+                    }}
+                >
+                    <Plus size={20} />
+                    <span>Новый проект</span>
+                </button>
 
-            <div className={styles.section}>
-                <h3 className={styles.sectionTitle}>Запросы</h3>
+                <div className={styles.section}>
+                    <h3 className={styles.sectionTitle}>Запросы</h3>
 
-                {SECTIONS.map(section => (
-                    <div key={section.id} className={`${styles.menuItem} ${expandedSections[section.id] ? styles.active : ''}`}>
-                        <div
-                            className={styles.menuHeader}
-                            onClick={() => toggleSection(section.id)}
-                        >
-                            <section.icon size={18} />
-                            <span>{section.label}</span>
-                        </div>
-                        {expandedSections[section.id] && (
-                            <div className={styles.subMenu}>
-                                {tasks[section.id]?.map(task => (
-                                    <div
-                                        key={task.id}
-                                        className={styles.subMenuItem}
-                                        onClick={() => handleTaskClick(task)}
-                                    >
-                                        <FileText size={16} />
-                                        <span>{task.title}</span>
-                                    </div>
-                                ))}
-                                {(!tasks[section.id] || tasks[section.id].length === 0) && (
-                                    <div className={styles.subMenuItem} style={{ fontStyle: 'italic', color: '#999' }}>
-                                        Нет задач
+                    {SECTIONS.map(section => {
+                        const sectionTasks = tasks[section.id] || [];
+                        const filteredTasks = filterTasks(sectionTasks);
+
+                        if (searchQuery && filteredTasks.length === 0) return null;
+
+                        return (
+                            <div
+                                key={section.id}
+                                className={`${styles.menuItem} ${expandedSections[section.id] ? styles.active : ''}`}
+                                onDragOver={handleDragOver}
+                                onDrop={(e) => handleDrop(e, section.id)}
+                            >
+                                <div
+                                    className={styles.menuHeader}
+                                    onClick={() => toggleSection(section.id)}
+                                >
+                                    <section.icon size={18} />
+                                    <span>{section.label}</span>
+                                    <span style={{ marginLeft: 'auto', fontSize: '12px', opacity: 0.5 }}>{filteredTasks.length}</span>
+                                </div>
+                                {expandedSections[section.id] && (
+                                    <div className={styles.subMenu}>
+                                        {filteredTasks.map(task => (
+                                            <div
+                                                key={task.id}
+                                                className={`${styles.subMenuItem} ${selectedTask?.id === task.id ? styles.activeItem : ''}`}
+                                                onClick={() => handleTaskClick(task)}
+                                                draggable
+                                                onDragStart={(e) => handleDragStart(e, task, section.id)}
+                                            >
+                                                <FileText size={16} />
+                                                <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{task.title}</span>
+                                                <button
+                                                    className={styles.deleteItemBtn}
+                                                    onClick={(e) => handleDelete(e, task.id, section.id === 'documents' ? 'document' : 'session')}
+                                                    title="Удалить"
+                                                >
+                                                    <Trash2 size={14} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                        {filteredTasks.length === 0 && (
+                                            <div className={styles.subMenuItem} style={{ fontStyle: 'italic', color: '#999' }}>
+                                                Нет задач
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </div>
-                        )}
-                    </div>
-                ))}
-            </div>
+                        )
+                    })}
+                </div>
 
-            <div className={styles.section}>
-                <h3 className={styles.sectionTitle}>История чатов</h3>
-                <div className={styles.historyList}>
-                    {MOCK_HISTORY.map(chat => (
-                        <div key={chat.id} className={styles.historyItem}>
-                            <span className={styles.historyTitle}>{chat.title}</span>
-                        </div>
-                    ))}
+
+
+                <div className={styles.clearContainer}>
+                    <button onClick={clearAll} className={styles.clearBtn}>
+                        <Trash2 size={16} />
+                        <span>Очистить все</span>
+                    </button>
                 </div>
             </div>
 

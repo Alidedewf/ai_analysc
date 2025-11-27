@@ -1,29 +1,31 @@
 .aiPanel {
-    width: 350px;
-    background-color: #f9f9f9;
-    border-left: 1px solid #eee;
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 400px;
+    height: 100vh;
+    background-color: white;
+    border-left: 1px solid #e5e5e5;
     display: flex;
     flex-direction: column;
-    height: 100%;
-    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.02);
+    z-index: 1000;
+    box-shadow: -4px 0 12px rgba(0, 0, 0, 0.05);
 }
 
 .aiPanelHeader {
-    padding: 1rem;
+    height: 60px;
+    padding: 0 1.5rem;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid #eee;
+    justify-content: space-between;
+    border-bottom: 1px solid #f0f0f0;
 }
 
 .aiPanelTitle {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #333;
-    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #1a1a1a;
     letter-spacing: 0.5px;
-    border-bottom: 2px solid #007bff;
-    padding-bottom: 0.25rem;
 }
 
 .aiPanelActions {
@@ -34,68 +36,30 @@
 .aiPanelBtn {
     background: none;
     border: none;
-    cursor: pointer;
     color: #666;
-    padding: 0.25rem;
-    border-radius: 4px;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.2s;
 }
 
-.aiPanelBtn:hover,
+.aiPanelBtn:hover {
+    background-color: #f5f5f5;
+    color: #1a1a1a;
+}
+
 .activeAction {
-    color: #333;
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: #f0f0f5;
+    color: #7d1d40;
 }
 
 .aiPanelContent {
     flex: 1;
-    padding: 1rem;
     overflow-y: auto;
-}
-
-.aiInputContainer {
-    padding: 1rem;
-    background-color: #f9f9f9;
-}
-
-.aiInputWrapper {
-    background-color: white;
-    border-radius: 2rem;
-    padding: 0.5rem 0.5rem 0.5rem 1rem;
+    padding: 1.5rem;
     display: flex;
-    align-items: center;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    border: 1px solid #eee;
-}
-
-.aiInput {
-    flex: 1;
-    border: none;
-    outline: none;
-    font-size: 0.9rem;
-    color: #333;
-}
-
-.aiInput::placeholder {
-    color: #999;
-}
-
-.aiSendBtn {
-    background-color: #e0e0e0;
-    border: none;
-    border-radius: 50%;
-    width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: #666;
-    transition: background-color 0.2s;
-}
-
-.aiSendBtn:hover {
-    background-color: #d0d0d0;
-    color: #333;
+    flex-direction: column;
+    gap: 1.5rem;
 }
 
 .emptyState {
@@ -114,37 +78,206 @@
 }
 
 .message {
-    margin-bottom: 1rem;
     display: flex;
     flex-direction: column;
+    max-width: 90%;
 }
 
 .userMessage {
-    align-items: flex-end;
+    align-self: flex-end;
 }
 
 .aiMessage {
-    align-items: flex-start;
+    align-self: flex-start;
 }
 
 .messageContent {
-    max-width: 85%;
-    padding: 0.75rem 1rem;
-    border-radius: 1rem;
-    font-size: 0.9rem;
-    line-height: 1.4;
+    padding: 1rem;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    line-height: 1.5;
 }
 
 .userMessage .messageContent {
-    background-color: #007bff;
+    background-color: #7d1d40;
     color: white;
-    border-bottom-right-radius: 0.25rem;
+    border-bottom-right-radius: 2px;
 }
 
 .aiMessage .messageContent {
-    background-color: white;
+    background-color: #f5f5f5;
     color: #333;
-    border: 1px solid #eee;
-    border-bottom-left-radius: 0.25rem;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    border-bottom-left-radius: 2px;
+}
+
+/* Markdown Styles within AI Message */
+.aiMessage .messageContent p {
+    margin-bottom: 0.5rem;
+}
+
+.aiMessage .messageContent p:last-child {
+    margin-bottom: 0;
+}
+
+.aiMessage .messageContent ul,
+.aiMessage .messageContent ol {
+    margin-left: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.aiMessage .messageContent h1,
+.aiMessage .messageContent h2,
+.aiMessage .messageContent h3 {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.aiInputContainer {
+    padding: 1.5rem;
+    border-top: 1px solid #f0f0f0;
+}
+
+.aiInputWrapper {
+    display: flex;
+    align-items: center;
+    background-color: #f9f9f9;
+    border: 1px solid #e5e5e5;
+    border-radius: 12px;
+    padding: 0.5rem;
+    transition: all 0.2s;
+}
+
+.aiInputWrapper:focus-within {
+    border-color: #7d1d40;
+    background-color: white;
+    box-shadow: 0 0 0 3px rgba(125, 29, 64, 0.1);
+}
+
+.aiInput {
+    flex: 1;
+    border: none;
+    background: none;
+    padding: 0.5rem 1rem;
+    font-size: 0.95rem;
+    outline: none;
+    color: #333;
+}
+
+.aiSendBtn {
+    background-color: #7d1d40;
+    color: white;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.aiSendBtn:hover:not(:disabled) {
+    background-color: #601630;
+}
+
+.aiSendBtn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.typingIndicator {
+    display: flex;
+    gap: 4px;
+    padding: 4px 0;
+}
+
+.typingIndicator span {
+    width: 6px;
+    height: 6px;
+    background-color: #ccc;
+    border-radius: 50%;
+    animation: bounce 1.4s infinite ease-in-out both;
+}
+
+.typingIndicator span:nth-child(1) {
+    animation-delay: -0.32s;
+}
+
+.typingIndicator span:nth-child(2) {
+    animation-delay: -0.16s;
+}
+
+@keyframes bounce {
+
+    0%,
+    80%,
+    100% {
+        transform: scale(0);
+    }
+
+    40% {
+        transform: scale(1);
+    }
+}
+
+/* Questionnaire Styles */
+.questionnaireForm {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-width: 250px;
+}
+
+.questionGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.questionLabel {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.questionInput {
+    padding: 0.75rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    resize: vertical;
+    font-family: inherit;
+    transition: border-color 0.2s;
+}
+
+.questionInput:focus {
+    outline: none;
+    border-color: #7d1d40;
+}
+
+.submitBtn {
+    margin-top: 0.5rem;
+    padding: 0.75rem;
+    background-color: #7d1d40;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.submitBtn:hover {
+    background-color: #601630;
+}
+
+.submittedMessage {
+    color: #2e7d32;
+    font-weight: 500;
+    padding: 0.5rem;
+    background-color: #e8f5e9;
+    border-radius: 6px;
+    text-align: center;
 }
