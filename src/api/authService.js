@@ -121,8 +121,21 @@ export const authService = {
     },
 
     getUser() {
-        const userStr = localStorage.getItem('user');
-        return userStr ? JSON.parse(userStr) : null;
+        try {
+            const userStr = localStorage.getItem('user');
+            if (!userStr || userStr === 'undefined' || userStr === 'null') {
+                return null;
+            }
+            return JSON.parse(userStr);
+        } catch (e) {
+            console.error('Error parsing user data:', e);
+            try {
+                localStorage.removeItem('user');
+            } catch (err) {
+                console.error('Failed to clear invalid user data:', err);
+            }
+            return null;
+        }
     },
 
     async getCurrentUser() {

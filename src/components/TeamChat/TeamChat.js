@@ -11,11 +11,11 @@ export const TeamChat = ({ isOpen, toggleChat }) => {
     const [isConnected, setIsConnected] = useState(false);
     const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
     const [newUser, setNewUser] = useState({ name: '', email: '', password: '', role: 'user', position: '' });
-    // wsRef already declared above
+    const wsRef = useRef(null);
     const messagesEndRef = useRef(null);
 
     const currentUser = authService.getUser();
-    const isAdmin = currentUser?.role === 'admin';
+    const isAdmin = currentUser?.role === 'Business Analyst';
 
     useEffect(() => {
         if (isOpen) {
