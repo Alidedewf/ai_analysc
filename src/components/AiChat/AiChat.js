@@ -53,6 +53,21 @@ export const AiChat = ({ isOpen, toggleChat }) => {
                                 text: 'Interactive Questionnaire (Error loading)'
                             };
                         }
+                    } else if (msg.text && msg.text.trim().startsWith('{') && msg.text.includes('"type": "questionnaire"')) {
+                        try {
+                            const data = JSON.parse(msg.text);
+                            if (data.type === 'questionnaire') {
+                                return {
+                                    id: msg.ID,
+                                    author: msg.author,
+                                    type: 'questionnaire',
+                                    questions: data.questions,
+                                    text: 'Please answer the following questions:'
+                                };
+                            }
+                        } catch (e) {
+                            console.error('Failed to parse raw questionnaire JSON', e);
+                        }
                     }
 
                     return {
@@ -195,11 +210,11 @@ export const AiChat = ({ isOpen, toggleChat }) => {
                 setIsThinking(false);
                 // Optionally show error in UI
                 break;
-            case 'document_created':
+            case 'doc_generated':
                 setMessages(prev => [...prev, {
                     id: Date.now(),
                     author: 'ai',
-                    text: `📄 Document Created: "${message.payload.title}"`
+                    text: `📄 Document Created: "${message.payload.title || 'Business Analysis Report'}"`
                 }]);
                 refreshDrafts();
                 setIsThinking(false);
