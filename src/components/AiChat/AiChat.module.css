@@ -1,14 +1,10 @@
 .aiPanel {
-    position: fixed;
-    top: 0;
-    right: 0;
     width: 400px;
-    height: 100vh;
+    height: 100%;
     background-color: white;
     border-left: 1px solid #e5e5e5;
     display: flex;
     flex-direction: column;
-    z-index: 1000;
     box-shadow: -4px 0 12px rgba(0, 0, 0, 0.05);
 }
 
@@ -280,4 +276,102 @@
     background-color: #e8f5e9;
     border-radius: 6px;
     text-align: center;
+}
+
+/* Questionnaire Answer Special Styles */
+.questionnaireAnswer .messageContent {
+    background-color: transparent !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    color: inherit !important;
+}
+
+/* Submitted Answers Styles */
+.submittedAnswers {
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    width: 100%;
+}
+
+.submittedHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background-color: #7d1d40;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border-bottom: 1px solid transparent;
+}
+
+.submittedHeader:hover {
+    background-color: #601630;
+}
+
+.submittedTitle {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: white;
+}
+
+.checkIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border-radius: 50%;
+    font-size: 0.8rem;
+}
+
+.expandIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    color: #999;
+    font-size: 1.2rem;
+    transition: color 0.2s;
+}
+
+.submittedHeader:hover .expandIcon {
+    color: #666;
+}
+
+.submittedContent {
+    padding: 1rem;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    background-color: #fff;
+}
+
+.qaPair {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.qaQuestion {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #666;
+    letter-spacing: 0.5px;
+}
+
+.qaAnswer {
+    font-size: 0.95rem;
+    color: #1a1a1a;
+    line-height: 1.5;
 }

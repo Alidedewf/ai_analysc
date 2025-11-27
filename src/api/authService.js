@@ -32,27 +32,26 @@ export const authService = {
         }
     },
 
-    async register(fullName, email, password) {
+    async createUser(name, email, password, role) {
+        const token = this.getToken();
         try {
-            // Note: The backend router commented out /auth/register, 
-            // but assuming it might be enabled or similar to login
-            const response = await fetch(`${API_URL}/auth/register`, {
+            const response = await fetch(`${API_URL}/api/admin/users`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ name: fullName, email, password }),
+                body: JSON.stringify({ name, email, password, role }),
             });
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.message || 'Registration failed');
+                throw new Error(errorData.message || 'Failed to create user');
             }
 
-            const data = await response.json();
-            return data;
+            return await response.json();
         } catch (error) {
-            console.error('Registration error:', error);
+            console.error('Create user error:', error);
             throw error;
         }
     },

@@ -8,11 +8,13 @@ import {
     XCircle,
     LogOut,
     Bell,
-    Trash2
+    Trash2,
+    Users
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useDashboard } from '../../context/DashboardContext';
 import styles from './Sidebar.module.css';
+import { UserManagement } from '../UserManagement/UserManagement';
 
 const SECTIONS = [
     { id: 'reviewing', label: 'Рассматривается', icon: History },
@@ -21,13 +23,12 @@ const SECTIONS = [
     { id: 'documents', label: 'Документы', icon: FileText },
 ];
 
-
-
 export const Sidebar = () => {
     const { user, logout } = useAuth();
     const { selectedTask, setSelectedTask, tasks, clearAll, moveTask, createNewProject, deleteItem } = useDashboard();
     const [expandedSections, setExpandedSections] = useState({});
     const [searchQuery, setSearchQuery] = useState('');
+    const [showUserManagement, setShowUserManagement] = useState(false);
 
     const toggleSection = (sectionId) => {
         setExpandedSections(prev => ({
@@ -80,17 +81,25 @@ export const Sidebar = () => {
 
     return (
         <aside className={styles.sidebar}>
+            {/* ... (header and content) ... */}
+
+            {/* Render UserManagement modal */}
+            {showUserManagement && (
+                <UserManagement onClose={() => setShowUserManagement(false)} />
+            )}
+
             <div className={styles.header}>
                 <div className={styles.logo}>
                     <div className={styles.logoIcon}>F</div>
                     <span className={styles.logoText}>AI business analyst</span>
                 </div>
-                <button className={styles.notificationBtn}>
+                <button className={styles.notificationBtn} title="Нет новых уведомлений">
                     <Bell size={20} />
                 </button>
             </div>
 
             <div className={styles.scrollableContent}>
+                {/* ... (search and new chat btn) ... */}
                 <div className={styles.searchContainer}>
                     <Search className={styles.searchIcon} size={18} />
                     <input
@@ -187,9 +196,14 @@ export const Sidebar = () => {
                     </div>
                     <div className={styles.userInfo}>
                         <span className={styles.userName}>{user?.name}</span>
-                        <span className={styles.userRole}>бизнес аналитик</span>
+                        <span className={styles.userRole}>{user?.role || 'Пользователь'}</span>
                     </div>
                 </div>
+                {user?.role === 'Business Analyst' && (
+                    <button className={styles.logoutBtn} title="Управление командой" onClick={() => setShowUserManagement(true)}>
+                        <Users size={18} />
+                    </button>
+                )}
                 <button onClick={logout} className={styles.logoutBtn}>
                     <LogOut size={18} />
                 </button>

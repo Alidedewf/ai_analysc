@@ -32,11 +32,35 @@ export const AiChat = ({ isOpen, toggleChat }) => {
                 const history = await dashboardService.fetchSessionMessages(targetSessionId);
 
                 // Map backend messages to frontend format
-                const formattedMessages = history.map(msg => ({
-                    id: msg.ID,
-                    author: msg.author, // 'user' or 'ai'
-                    text: msg.text
-                }));
+                const formattedMessages = history.map(msg => {
+                    // Check if it's a stored questionnaire
+                    if (msg.text && msg.text.startsWith('[QUESTIONNAIRE_JSON]')) {
+                        try {
+                            const jsonStr = msg.text.replace('[QUESTIONNAIRE_JSON]', '');
+                            const questions = JSON.parse(jsonStr);
+                            return {
+                                id: msg.ID,
+                                author: msg.author,
+                                type: 'questionnaire',
+                                questions: questions,
+                                text: 'Please answer the following questions:'
+                            };
+                        } catch (e) {
+                            console.error('Failed to parse stored questionnaire', e);
+                            return {
+                                id: msg.ID,
+                                author: msg.author,
+                                text: 'Interactive Questionnaire (Error loading)'
+                            };
+                        }
+                    }
+
+                    return {
+                        id: msg.ID,
+                        author: msg.author, // 'user' or 'ai'
+                        text: msg.text
+                    };
+                });
                 setMessages(formattedMessages);
             } else {
                 // New session or draft without history
@@ -217,6 +241,11 @@ export const AiChat = ({ isOpen, toggleChat }) => {
     };
 
     const submitQuestionnaire = (questions, answers) => {
+        if (!wsRef.current || !isConnected) {
+            alert("Соединение потеряно. Пожалуйста, подождите или перезагрузите страницу.");
+            return;
+        }
+
         // Format answers as a text message
         let responseText = "Answers to questionnaire:\n";
         questions.forEach(q => {
@@ -278,22 +307,27 @@ export const AiChat = ({ isOpen, toggleChat }) => {
                         <p>Start a conversation with AI Assistant</p>
                     </div>
                 )}
-                {messages.map((msg) => (
-                    <div
-                        key={msg.id}
-                        className={`${styles.message} ${msg.author === 'user' ? styles.userMessage : styles.aiMessage}`}
-                    >
-                        <div className={styles.messageContent}>
-                            {msg.type === 'questionnaire' ? (
-                                <QuestionnaireForm questions={msg.questions} onSubmit={submitQuestionnaire} />
-                            ) : (
-                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                    {msg.text.replace(/\[SYSTEM CONTEXT:[\s\S]*?\]\s*/, '')}
-                                </ReactMarkdown>
-                            )}
+                {messages.map((msg) => {
+                    const isQuestionnaireAnswer = msg.text && msg.text.startsWith('Answers to questionnaire:');
+                    return (
+                        <div
+                            key={msg.id}
+                            className={`${styles.message} ${msg.author === 'user' ? styles.userMessage : styles.aiMessage} ${isQuestionnaireAnswer ? styles.questionnaireAnswer : ''}`}
+                        >
+                            <div className={styles.messageContent}>
+                                {msg.type === 'questionnaire' ? (
+                                    <QuestionnaireForm questions={msg.questions} onSubmit={submitQuestionnaire} />
+                                ) : msg.text.startsWith('Answers to questionnaire:') ? (
+                                    <SubmittedAnswers text={msg.text} />
+                                ) : (
+                                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                        {msg.text.replace(/\[SYSTEM CONTEXT:[\s\S]*?\]\s*/, '')}
+                                    </ReactMarkdown>
+                                )}
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
                 {isThinking && (
                     <div className={`${styles.message} ${styles.aiMessage}`}>
                         <div className={styles.messageContent}>
@@ -327,6 +361,40 @@ export const AiChat = ({ isOpen, toggleChat }) => {
                     </button>
                 </div>
             </div>
+        </div>
+    );
+};
+
+const SubmittedAnswers = ({ text }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+
+    // Parse the text back to Q&A
+    // Format: "Answers to questionnaire:\nQ: ...\nA: ...\n\n"
+    const pairs = text.replace('Answers to questionnaire:\n', '').split('\n\n').filter(p => p.trim());
+
+    return (
+        <div className={styles.submittedAnswers}>
+            <div className={styles.submittedHeader} onClick={() => setIsExpanded(!isExpanded)}>
+                <div className={styles.submittedTitle}>
+                    <span className={styles.checkIcon}>✓</span>
+                    Questionnaire Submitted
+                </div>
+                <span className={styles.expandIcon}>{isExpanded ? '−' : '+'}</span>
+            </div>
+
+            {isExpanded && (
+                <div className={styles.submittedContent}>
+                    {pairs.map((pair, idx) => {
+                        const [q, a] = pair.split('\nA: ');
+                        return (
+                            <div key={idx} className={styles.qaPair}>
+                                <div className={styles.qaQuestion}>{q.replace('Q: ', '')}</div>
+                                <div className={styles.qaAnswer}>{a}</div>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
         </div>
     );
 };

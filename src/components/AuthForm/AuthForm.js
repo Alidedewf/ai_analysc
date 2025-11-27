@@ -4,16 +4,14 @@ import { useAuth } from '../../context/AuthContext';
 import styles from './AuthForm.module.css';
 
 export const AuthForm = () => {
-    const { login, register } = useAuth();
+    const { login } = useAuth();
     const navigate = useNavigate();
-    const [mode, setMode] = useState('login');
     const [isLoading, setIsLoading] = useState(false);
     const [errors, setErrors] = useState({});
 
     const [formData, setFormData] = useState({
         email: '',
         password: '',
-        fullName: '',
     });
 
     const validate = () => {
@@ -21,7 +19,7 @@ export const AuthForm = () => {
 
         if (!formData.email) {
             newErrors.email = 'Email is required';
-        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+        } else if (!/\S+@\S+\.\S/.test(formData.email)) {
             newErrors.email = 'Invalid email address';
         }
 
@@ -29,10 +27,6 @@ export const AuthForm = () => {
             newErrors.password = 'Password is required';
         } else if (formData.password.length < 6) {
             newErrors.password = 'Password must be at least 6 characters';
-        }
-
-        if (mode === 'register' && !formData.fullName) {
-            newErrors.fullName = 'Full name is required';
         }
 
         setErrors(newErrors);
@@ -45,13 +39,7 @@ export const AuthForm = () => {
 
         setIsLoading(true);
         try {
-            if (mode === 'login') {
-                await login(formData.email, formData.password);
-            } else {
-                await register(formData.fullName, formData.email, formData.password);
-            }
-
-            // alert(`Successfully ${mode === 'login' ? 'logged in' : 'registered'}!`);
+            await login(formData.email, formData.password);
             navigate('/app');
         } catch (error) {
             console.error(error);
@@ -65,34 +53,14 @@ export const AuthForm = () => {
         <div className={styles.container}>
             <div className={styles.tabs}>
                 <button
-                    className={`${styles.tab} ${mode === 'login' ? styles.active : ''}`}
-                    onClick={() => setMode('login')}
+                    className={`${styles.tab} ${styles.active}`}
+                    onClick={() => { }}
                 >
                     Login
-                </button>
-                <button
-                    className={`${styles.tab} ${mode === 'register' ? styles.active : ''}`}
-                    onClick={() => setMode('register')}
-                >
-                    Register
                 </button>
             </div>
 
             <form className={styles.form} onSubmit={handleSubmit}>
-                {mode === 'register' && (
-                    <div className={styles.inputGroup}>
-                        <label className={styles.label}>Full Name</label>
-                        <input
-                            type="text"
-                            className={styles.input}
-                            value={formData.fullName}
-                            onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                            placeholder="John Doe"
-                        />
-                        {errors.fullName && <span className={styles.error}>{errors.fullName}</span>}
-                    </div>
-                )}
-
                 <div className={styles.inputGroup}>
                     <label className={styles.label}>Email</label>
                     <input
@@ -118,7 +86,7 @@ export const AuthForm = () => {
                 </div>
 
                 <button type="submit" className={styles.submitButton} disabled={isLoading}>
-                    {isLoading ? <div className={styles.spinner} /> : (mode === 'login' ? 'Sign In' : 'Create Account')}
+                    {isLoading ? <div className={styles.spinner} /> : 'Sign In'}
                 </button>
             </form>
         </div>

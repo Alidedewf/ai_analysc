@@ -119,7 +119,6 @@ export const Note = () => {
                         <button className={styles.actionBtn} onClick={triggerFileUpload} title="Загрузить DOCX">
                             <Upload size={20} />
                         </button>
-                        <button className={styles.actionBtn}><Share size={20} /></button>
                         <button
                             className={`${styles.actionBtn} ${activePanel === 'ai' ? styles.activeAction : ''}`}
                             onClick={() => togglePanel('ai')}
