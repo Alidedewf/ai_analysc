@@ -1,3 +1,25 @@
+.errorMessage {
+    background-color: transparent;
+    color: #7d1d40;
+    padding: 8px 0;
+    border: none;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: none;
+    line-height: 1.5;
+    margin-top: 4px;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+.errorIcon {
+    flex-shrink: 0;
+    color: #7d1d40;
+    margin-top: 0;
+}
+
 .aiPanel {
     width: 400px;
     height: 100%;
@@ -92,6 +114,12 @@
     border-radius: 12px;
     font-size: 0.95rem;
     line-height: 1.5;
+    word-break: break-word;
+    /* Prevent overflow from long words */
+    overflow-wrap: anywhere;
+    /* Force break at any point if necessary */
+    white-space: pre-wrap;
+    /* Preserve newlines but wrap text */
 }
 
 .userMessage .messageContent {
@@ -136,7 +164,8 @@
 
 .aiInputWrapper {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
+    /* Align button to bottom for multiline */
     background-color: #f9f9f9;
     border: 1px solid #e5e5e5;
     border-radius: 12px;
@@ -158,6 +187,13 @@
     font-size: 0.95rem;
     outline: none;
     color: #333;
+    resize: none;
+    /* Disable manual resize */
+    min-height: 24px;
+    max-height: 150px;
+    /* Limit max height */
+    font-family: inherit;
+    line-height: 1.5;
 }
 
 .aiSendBtn {

@@ -157,5 +157,87 @@ export const dashboardService = {
             console.error('Error creating session:', error);
             throw error;
         }
+    },
+
+    async createDraft(title, content) {
+        const token = authService.getToken();
+        if (!token) throw new Error('No token');
+
+        try {
+            const response = await fetch(`${API_URL}/drafts`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    title: title,
+                    request: content // Backend expects 'request' field
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to create draft');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Error creating draft:', error);
+            throw error;
+        }
+    },
+
+    async downloadDraft(id) {
+        const token = authService.getToken();
+        if (!token) throw new Error('No token');
+
+        try {
+            const response = await fetch(`${API_URL}/drafts/${id}/download`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to download draft');
+            }
+
+            // Return blob for download
+            return await response.blob();
+        } catch (error) {
+            console.error('Error downloading draft:', error);
+            throw error;
+        }
+    },
+
+    async approveDraft(id) {
+        const token = authService.getToken();
+        if (!token) throw new Error('No token');
+
+        try {
+            const response = await fetch(`${API_URL}/drafts/${id}/approve`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to approve draft');
+            }
+        } catch (error) {
+            console.error('Error approving draft:', error);
+            throw error;
+        }
+    },
+
+    async checkHealth() {
+        try {
+            const response = await fetch(`${API_URL}/health`);
+            return response.ok;
+        } catch (error) {
+            console.error('Health check failed:', error);
+            return false;
+        }
     }
 };

@@ -32,7 +32,61 @@ export const authService = {
         }
     },
 
-    async createUser(name, email, password, role) {
+    async register(name, email, password) {
+        try {
+            const response = await fetch(`${API_URL}/auth/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name, email, password }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Registration failed');
+            }
+
+            const data = await response.json();
+            if (data.token) {
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+            }
+            return data;
+        } catch (error) {
+            console.error('Registration error:', error);
+            throw error;
+        }
+    },
+
+    async googleLogin(idToken) {
+        try {
+            const response = await fetch(`${API_URL}/auth/google`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ idToken }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Google login failed');
+            }
+
+            const data = await response.json();
+            if (data.token) {
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+            }
+            return data;
+        } catch (error) {
+            console.error('Google login error:', error);
+            throw error;
+        }
+    },
+
+    async createUser(name, email, password, role, position) {
         const token = this.getToken();
         try {
             const response = await fetch(`${API_URL}/api/admin/users`, {
@@ -41,7 +95,7 @@ export const authService = {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ name, email, password, role }),
+                body: JSON.stringify({ name, email, password, role, position }),
             });
 
             if (!response.ok) {

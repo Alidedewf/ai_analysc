@@ -233,3 +233,93 @@
     color: #999;
     font-size: 0.9rem;
 }
+
+/* Modal Styles */
+.modalOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    backdrop-filter: blur(2px);
+}
+
+.modal {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 320px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modalHeader h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #333;
+}
+
+.closeBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.closeBtn:hover {
+    background: #f0f0f0;
+}
+
+.createForm {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.modalInput,
+.modalSelect {
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.modalInput:focus,
+.modalSelect:focus {
+    border-color: #7d1d40;
+}
+
+.submitBtn {
+    background: #7d1d40;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background 0.2s;
+}
+
+.submitBtn:hover {
+    background: #601630;
+}

@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useDashboard } from '../../context/DashboardContext';
+import { dashboardService } from '../../api/dashboardService';
 import styles from './Sidebar.module.css';
 import { UserManagement } from '../UserManagement/UserManagement';
 
@@ -29,6 +30,18 @@ export const Sidebar = () => {
     const [expandedSections, setExpandedSections] = useState({});
     const [searchQuery, setSearchQuery] = useState('');
     const [showUserManagement, setShowUserManagement] = useState(false);
+    const [isSystemHealthy, setIsSystemHealthy] = useState(true);
+
+    React.useEffect(() => {
+        const checkHealth = async () => {
+            const healthy = await dashboardService.checkHealth();
+            setIsSystemHealthy(healthy);
+        };
+        checkHealth();
+        // Check every minute
+        const interval = setInterval(checkHealth, 60000);
+        return () => clearInterval(interval);
+    }, []);
 
     const toggleSection = (sectionId) => {
         setExpandedSections(prev => ({
@@ -207,6 +220,10 @@ export const Sidebar = () => {
                 <button onClick={logout} className={styles.logoutBtn}>
                     <LogOut size={18} />
                 </button>
+            </div>
+            <div style={{ padding: '0 1rem 1rem', fontSize: '10px', color: '#999', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: isSystemHealthy ? '#4caf50' : '#f44336' }}></div>
+                System Status: {isSystemHealthy ? 'Operational' : 'Issues Detected'}
             </div>
         </aside>
     );

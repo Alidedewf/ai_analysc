@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, ArrowUp, X } from 'lucide-react';
+import { Sparkles, ArrowUp, X, AlertCircle } from 'lucide-react';
 import styles from './AiChat.module.css';
 import { authService } from '../../api/authService';
 
@@ -53,20 +53,35 @@ export const AiChat = ({ isOpen, toggleChat }) => {
                                 text: 'Interactive Questionnaire (Error loading)'
                             };
                         }
-                    } else if (msg.text && msg.text.trim().startsWith('{') && msg.text.includes('"type": "questionnaire"')) {
-                        try {
-                            const data = JSON.parse(msg.text);
-                            if (data.type === 'questionnaire') {
-                                return {
-                                    id: msg.ID,
-                                    author: msg.author,
-                                    type: 'questionnaire',
-                                    questions: data.questions,
-                                    text: 'Please answer the following questions:'
-                                };
+                    } else if (msg.text) {
+                        // Try to parse any JSON message (questionnaire, clarification, requirements, error)
+                        // First clean potential markdown
+                        let textToParse = msg.text.trim();
+                        textToParse = textToParse.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/\s*```$/, '');
+
+                        if (textToParse.startsWith('{')) {
+                            try {
+                                const data = JSON.parse(textToParse);
+                                if (data.type === 'questionnaire' || data.type === 'clarification') {
+                                    return {
+                                        id: msg.ID,
+                                        author: msg.author,
+                                        type: data.type,
+                                        title: data.title,
+                                        questions: data.questions,
+                                        text: data.title || 'Please answer the following questions:'
+                                    };
+                                } else if (data.type === 'error') {
+                                    return {
+                                        id: msg.ID,
+                                        author: msg.author,
+                                        type: 'error',
+                                        text: data.message || 'An error occurred'
+                                    };
+                                }
+                            } catch (e) {
+                                // Not JSON or not the structure we want, ignore
                             }
-                        } catch (e) {
-                            console.error('Failed to parse raw questionnaire JSON', e);
                         }
                     }
 
@@ -179,12 +194,35 @@ export const AiChat = ({ isOpen, toggleChat }) => {
                 // If we create a document, that's when the link is permanent.
                 break;
             case 'ai_done':
-                // Add AI response to messages
-                setMessages(prev => [...prev, {
+                // Check if the text is actually a JSON object (e.g. clarification)
+                let aiMsg = {
                     id: Date.now(),
                     author: 'ai',
                     text: message.payload.text
-                }]);
+                };
+
+                try {
+                    let textToParse = message.payload.text.trim();
+                    // Remove markdown code blocks if present
+                    textToParse = textToParse.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/\s*```$/, '');
+
+                    if (textToParse.startsWith('{')) {
+                        const data = JSON.parse(textToParse);
+                        if (data.type === 'questionnaire' || data.type === 'clarification') {
+                            aiMsg.type = data.type;
+                            aiMsg.questions = data.questions;
+                            aiMsg.title = data.title;
+                            aiMsg.text = data.title || 'Please answer the following questions:';
+                        } else if (data.type === 'error') {
+                            aiMsg.type = 'error';
+                            aiMsg.text = data.message || 'An error occurred';
+                        }
+                    }
+                } catch (e) {
+                    // Not JSON, treat as text
+                }
+
+                setMessages(prev => [...prev, aiMsg]);
                 setIsThinking(false);
                 break;
             case 'questionnaire':
@@ -293,8 +331,17 @@ export const AiChat = ({ isOpen, toggleChat }) => {
         }));
     };
 
+    const textareaRef = useRef(null);
+
+    useEffect(() => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
+        }
+    }, [input]);
+
     const handleKeyDown = (e) => {
-        if (e.key === 'Enter') {
+        if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             sendMessage();
         }
@@ -337,8 +384,17 @@ export const AiChat = ({ isOpen, toggleChat }) => {
                             className={`${styles.message} ${msg.author === 'user' ? styles.userMessage : styles.aiMessage} ${isQuestionnaireAnswer ? styles.questionnaireAnswer : ''}`}
                         >
                             <div className={styles.messageContent}>
-                                {msg.type === 'questionnaire' ? (
-                                    <QuestionnaireForm questions={msg.questions} onSubmit={submitQuestionnaire} />
+                                {(msg.type === 'questionnaire' || msg.type === 'clarification') ? (
+                                    <QuestionnaireForm
+                                        questions={msg.questions}
+                                        title={msg.title}
+                                        onSubmit={submitQuestionnaire}
+                                    />
+                                ) : msg.type === 'error' ? (
+                                    <div className={styles.errorMessage}>
+                                        <AlertCircle size={20} className={styles.errorIcon} />
+                                        <span>{msg.text}</span>
+                                    </div>
                                 ) : msg.text.startsWith('Answers to questionnaire:') ? (
                                     <SubmittedAnswers text={msg.text} />
                                 ) : (
@@ -365,14 +421,15 @@ export const AiChat = ({ isOpen, toggleChat }) => {
 
             <div className={styles.aiInputContainer}>
                 <div className={styles.aiInputWrapper}>
-                    <input
-                        type="text"
+                    <textarea
+                        ref={textareaRef}
                         placeholder={isConnected ? "Ask anything..." : "Connecting..."}
                         className={styles.aiInput}
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={handleKeyDown}
                         disabled={!isConnected}
+                        rows={1}
                     />
                     <button
                         className={styles.aiSendBtn}
@@ -421,7 +478,7 @@ const SubmittedAnswers = ({ text }) => {
     );
 };
 
-const QuestionnaireForm = ({ questions, onSubmit }) => {
+const QuestionnaireForm = ({ questions, title, onSubmit }) => {
     const [answers, setAnswers] = useState({});
     const [submitted, setSubmitted] = useState(false);
 
@@ -441,6 +498,7 @@ const QuestionnaireForm = ({ questions, onSubmit }) => {
 
     return (
         <form onSubmit={handleSubmit} className={styles.questionnaireForm}>
+            {title && <h4 className={styles.formTitle}>{title}</h4>}
             {questions.map(q => (
                 <div key={q.id} className={styles.questionGroup}>
                     <label className={styles.questionLabel}>{q.text}</label>

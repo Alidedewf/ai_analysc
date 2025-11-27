@@ -1,11 +1,12 @@
 import React, { useState, useRef } from 'react';
-import { Share, Sparkles, MessageSquareText, MoreHorizontal, ChevronLeft, ChevronRight, Upload } from 'lucide-react';
+import { Share, Sparkles, MessageSquareText, MoreHorizontal, ChevronLeft, ChevronRight, Upload, Download, Check } from 'lucide-react';
 import styles from './Note.module.css';
 import { AiChat } from '../AiChat/AiChat';
 import { TeamChat } from '../TeamChat/TeamChat';
 import { Onboarding } from '../Onboarding/Onboarding';
 import { RequirementGuide } from '../RequirementGuide/RequirementGuide';
 import { useDashboard } from '../../context/DashboardContext';
+import { dashboardService } from '../../api/dashboardService';
 import mammoth from 'mammoth';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -28,7 +29,19 @@ export const Note = () => {
             const arrayBuffer = e.target.result;
             try {
                 const result = await mammoth.convertToHtml({ arrayBuffer });
-                addTask(file.name.replace('.docx', ''), result.value);
+                const htmlContent = result.value;
+
+                // 1. Show locally immediately
+                addTask(file.name.replace('.docx', ''), htmlContent);
+
+                // 2. Send to backend (as requested)
+                try {
+                    await dashboardService.createDraft(file.name, htmlContent);
+                    console.log("Document uploaded to backend successfully");
+                } catch (uploadError) {
+                    console.error("Failed to upload to backend:", uploadError);
+                    // We don't block the UI, just log error
+                }
             } catch (error) {
                 console.error("Error converting file:", error);
                 alert("Ошибка при чтении файла");
@@ -39,6 +52,36 @@ export const Note = () => {
 
     const triggerFileUpload = () => {
         fileInputRef.current.click();
+    };
+
+    const handleDownload = async () => {
+        if (!selectedTask?.originalId) return;
+        try {
+            const blob = await dashboardService.downloadDraft(selectedTask.originalId);
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${selectedTask.title || 'document'}.docx`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } catch (error) {
+            console.error("Download failed:", error);
+            alert("Failed to download document");
+        }
+    };
+
+    const handleApprove = async () => {
+        if (!selectedTask?.originalId) return;
+        try {
+            await dashboardService.approveDraft(selectedTask.originalId);
+            alert("Document approved successfully!");
+            // Optionally refresh drafts or update UI state
+        } catch (error) {
+            console.error("Approve failed:", error);
+            alert("Failed to approve document");
+        }
     };
 
     const taskContent = selectedTask ? allContent[selectedTask.id] : null;
@@ -119,6 +162,18 @@ export const Note = () => {
                         <button className={styles.actionBtn} onClick={triggerFileUpload} title="Загрузить DOCX">
                             <Upload size={20} />
                         </button>
+
+                        {selectedTask?.isDraft && (
+                            <>
+                                <button className={styles.actionBtn} onClick={handleDownload} title="Скачать DOCX">
+                                    <Download size={20} />
+                                </button>
+                                <button className={styles.actionBtn} onClick={handleApprove} title="Утвердить">
+                                    <Check size={20} />
+                                </button>
+                            </>
+                        )}
+
                         <button
                             className={`${styles.actionBtn} ${activePanel === 'ai' ? styles.activeAction : ''}`}
                             onClick={() => togglePanel('ai')}
