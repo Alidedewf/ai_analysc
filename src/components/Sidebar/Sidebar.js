@@ -7,42 +7,42 @@ import {
     CheckCircle,
     XCircle,
     LogOut,
-    Bell
+    Bell,
+    Trash2,
+    Users,
+    UserPlus
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useDashboard } from '../../context/DashboardContext';
+import { dashboardService } from '../../api/dashboardService';
 import styles from './Sidebar.module.css';
-
-const MOCK_TASKS = {
-    reviewing: [
-        { id: 1, title: 'бизнес задача' },
-        { id: 2, title: 'бизнес задача' },
-        { id: 3, title: 'бизнес задача' },
-    ],
-    accepted: [
-        { id: 4, title: 'Принятая задача 1' },
-        { id: 5, title: 'Принятая задача 2' },
-    ],
-    rejected: [
-        { id: 6, title: 'Отклоненная задача 1' },
-    ]
-};
+import { UserManagement } from '../UserManagement/UserManagement';
 
 const SECTIONS = [
     { id: 'reviewing', label: 'Рассматривается', icon: History },
     { id: 'accepted', label: 'Приняты', icon: CheckCircle },
     { id: 'rejected', label: 'Отклоненные', icon: XCircle },
-];
-
-const MOCK_HISTORY = [
-    { id: 1, title: 'общий (Пример каналы)', date: 'Вчера' },
-    { id: 2, title: 'Анализ конкурентов', date: '2 дня назад' },
+    { id: 'documents', label: 'Документы', icon: FileText },
 ];
 
 export const Sidebar = () => {
     const { user, logout } = useAuth();
-    const { setSelectedTask } = useDashboard();
-    const [expandedSections, setExpandedSections] = useState({ reviewing: true });
+    const { selectedTask, setSelectedTask, tasks, clearAll, moveTask, createNewProject, deleteItem } = useDashboard();
+    const [expandedSections, setExpandedSections] = useState({});
+    const [searchQuery, setSearchQuery] = useState('');
+    const [showUserManagement, setShowUserManagement] = useState(false);
+    const [isSystemHealthy, setIsSystemHealthy] = useState(true);
+
+    React.useEffect(() => {
+        const checkHealth = async () => {
+            const healthy = await dashboardService.checkHealth();
+            setIsSystemHealthy(healthy);
+        };
+        checkHealth();
+        // Check every minute
+        const interval = setInterval(checkHealth, 60000);
+        return () => clearInterval(interval);
+    }, []);
 
     const toggleSection = (sectionId) => {
         setExpandedSections(prev => ({
@@ -52,94 +52,194 @@ export const Sidebar = () => {
     };
 
     const handleTaskClick = (task) => {
-        setSelectedTask({ ...task, date: 'Сегодня' }); 
+        setSelectedTask({ ...task, date: 'Сегодня' });
+    };
+
+    const handleDelete = (e, id, type) => {
+        e.stopPropagation();
+        deleteItem(id, type);
+    };
+
+    const filterTasks = (taskList) => {
+        if (!searchQuery) return taskList;
+        return taskList.filter(task =>
+            task.title.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+    };
+
+    const handleDragStart = (e, task, sourceCategory) => {
+        e.dataTransfer.setData('taskId', task.id);
+        e.dataTransfer.setData('sourceCategory', sourceCategory);
+    };
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+    };
+
+    const handleDrop = (e, targetCategory) => {
+        e.preventDefault();
+        const taskId = e.dataTransfer.getData('taskId');
+        const sourceCategory = e.dataTransfer.getData('sourceCategory');
+
+        // Convert string ID to number if needed (for mock data)
+        const numericId = Number(taskId);
+        const finalId = isNaN(numericId) ? taskId : numericId;
+
+        moveTask(finalId, sourceCategory, targetCategory);
+
+        // Expand target section if collapsed
+        if (!expandedSections[targetCategory]) {
+            toggleSection(targetCategory);
+        }
     };
 
     return (
         <aside className={styles.sidebar}>
+            {/* ... (header and content) ... */}
+
+            {/* Render UserManagement modal */}
+            {showUserManagement && (
+                <UserManagement onClose={() => setShowUserManagement(false)} />
+            )}
+
             <div className={styles.header}>
-                <div className={styles.logo}>
-                    <div className={styles.logoIcon}>F</div>
-                    <span className={styles.logoText}>AI business analyst</span>
-                </div>
-                <button className={styles.notificationBtn}>
-                    <Bell size={20} />
-                </button>
-            </div>
+                {/* <div className={styles.branding}>
+                    <div className={styles.logo}>
+                        <div className={styles.logoIcon}>F</div>
+                    </div>
+                    <button className={styles.notificationBtn} title="Нет новых уведомлений">
+                        <Bell size={20} />
+                    </button>
+                </div> */}
 
-            <div className={styles.searchContainer}>
-                <Search className={styles.searchIcon} size={18} />
-                <input
-                    type="text"
-                    placeholder="Поиск"
-                    className={styles.searchInput}
-                />
-            </div>
-
-            <button className={styles.newChatBtn}>
-                <Plus size={20} />
-                <span>Новый проект</span>
-            </button>
-
-            <div className={styles.section}>
-                <h3 className={styles.sectionTitle}>Запросы</h3>
-
-                {SECTIONS.map(section => (
-                    <div key={section.id} className={`${styles.menuItem} ${expandedSections[section.id] ? styles.active : ''}`}>
-                        <div
-                            className={styles.menuHeader}
-                            onClick={() => toggleSection(section.id)}
-                        >
-                            <section.icon size={18} />
-                            <span>{section.label}</span>
+                <div className={styles.userContainer}>
+                    <div className={styles.userProfile}>
+                        <div className={styles.avatar}>
+                            {user?.name?.[0] || 'U'}
                         </div>
-                        {expandedSections[section.id] && (
-                            <div className={styles.subMenu}>
-                                {MOCK_TASKS[section.id].map(task => (
-                                    <div
-                                        key={task.id}
-                                        className={styles.subMenuItem}
-                                        onClick={() => handleTaskClick(task)}
-                                    >
-                                        <FileText size={16} />
-                                        <span>{task.title}</span>
-                                    </div>
-                                ))}
-                                {MOCK_TASKS[section.id].length === 0 && (
-                                    <div className={styles.subMenuItem} style={{ fontStyle: 'italic', color: '#999' }}>
-                                        Нет задач
+                        <div className={styles.userInfo}>
+                            <span className={styles.userName}>{user?.name}</span>
+                            <span className={styles.userRole}>{user?.role || 'Пользователь'}</span>
+                        </div>
+                    </div>
+
+                    <div className={styles.footerActions}>
+                        {/* Allow 'Business Analyst', 'admin' roles OR specific email */}
+                        {(user?.role === 'Business Analyst' || user?.role === 'admin' || user?.email === 'admin@example.com') && (
+                            <>
+                                <button className={styles.actionBtn} title="Добавить пользователя" onClick={() => setShowUserManagement(true)}>
+                                    <UserPlus size={16} />
+                                </button>
+                                <button className={styles.actionBtn} title="Управление командой" onClick={() => setShowUserManagement(true)}>
+                                    <Users size={16} />
+                                </button>
+                            </>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            <div className={styles.scrollableContent}>
+                {/* ... (search and new chat btn) ... */}
+                <div className={styles.searchContainer}>
+                    <Search className={styles.searchIcon} size={18} />
+                    <input
+                        type="text"
+                        placeholder="Поиск"
+                        className={styles.searchInput}
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                </div>
+
+                <button
+                    className={styles.newChatBtn}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        createNewProject();
+                    }}
+                >
+                    <Plus size={20} />
+                    <span>Новый проект</span>
+                </button>
+
+                <div className={styles.section}>
+                    <h3 className={styles.sectionTitle}>Запросы</h3>
+
+                    {SECTIONS.map(section => {
+                        const sectionTasks = tasks[section.id] || [];
+                        const filteredTasks = filterTasks(sectionTasks);
+
+                        if (searchQuery && filteredTasks.length === 0) return null;
+
+                        return (
+                            <div
+                                key={section.id}
+                                className={`${styles.menuItem} ${expandedSections[section.id] ? styles.active : ''}`}
+                                onDragOver={handleDragOver}
+                                onDrop={(e) => handleDrop(e, section.id)}
+                            >
+                                <div
+                                    className={styles.menuHeader}
+                                    onClick={() => toggleSection(section.id)}
+                                >
+                                    <section.icon size={18} />
+                                    <span>{section.label}</span>
+                                    <span style={{ marginLeft: 'auto', fontSize: '12px', opacity: 0.5 }}>{filteredTasks.length}</span>
+                                </div>
+                                {expandedSections[section.id] && (
+                                    <div className={styles.subMenu}>
+                                        {filteredTasks.map(task => (
+                                            <div
+                                                key={task.id}
+                                                className={`${styles.subMenuItem} ${selectedTask?.id === task.id ? styles.activeItem : ''}`}
+                                                onClick={() => handleTaskClick(task)}
+                                                draggable
+                                                onDragStart={(e) => handleDragStart(e, task, section.id)}
+                                            >
+                                                <FileText size={16} />
+                                                <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{task.title}</span>
+                                                <button
+                                                    className={styles.deleteItemBtn}
+                                                    onClick={(e) => handleDelete(e, task.id, section.id === 'documents' ? 'document' : 'session')}
+                                                    title="Удалить"
+                                                >
+                                                    <Trash2 size={14} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                        {filteredTasks.length === 0 && (
+                                            <div className={styles.subMenuItem} style={{ fontStyle: 'italic', color: '#999' }}>
+                                                Нет задач
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </div>
-                        )}
-                    </div>
-                ))}
-            </div>
+                        )
+                    })}
+                </div>
 
-            <div className={styles.section}>
-                <h3 className={styles.sectionTitle}>История чатов</h3>
-                <div className={styles.historyList}>
-                    {MOCK_HISTORY.map(chat => (
-                        <div key={chat.id} className={styles.historyItem}>
-                            <span className={styles.historyTitle}>{chat.title}</span>
-                        </div>
-                    ))}
+
+
+                <div className={styles.clearContainer}>
+                    <button onClick={clearAll} className={styles.clearBtn}>
+                        <Trash2 size={16} />
+                        <span>Очистить все</span>
+                    </button>
                 </div>
             </div>
 
             <div className={styles.footer}>
-                <div className={styles.userProfile}>
-                    <div className={styles.avatar}>
-                        {user?.name?.[0] || 'U'}
-                    </div>
-                    <div className={styles.userInfo}>
-                        <span className={styles.userName}>{user?.name}</span>
-                        <span className={styles.userRole}>бизнес аналитик</span>
-                    </div>
-                </div>
-                <button onClick={logout} className={styles.logoutBtn}>
+                <button onClick={logout} className={styles.logoutBtn} title="Выйти">
                     <LogOut size={18} />
+                    <span>Выйти из системы</span>
                 </button>
+
+                <div className={styles.systemStatus}>
+                    <div className={styles.statusDot} style={{ backgroundColor: isSystemHealthy ? '#4caf50' : '#f44336' }}></div>
+                    System Status: {isSystemHealthy ? 'Operational' : 'Issues Detected'}
+                </div>
             </div>
         </aside>
     );

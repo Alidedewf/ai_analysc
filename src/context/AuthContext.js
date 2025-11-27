@@ -9,13 +9,29 @@ export const AuthProvider = ({ children }) => {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        // In a real app, we would validate the token with the backend here
-        // For now, if we have a token, we assume the user is logged in
-        if (token) {
-            // Mock restoring user session
-            setUser({ name: 'Test User', email: 'test@example.com' });
-        }
-        setIsLoading(false);
+        const initAuth = async () => {
+            if (token) {
+                try {
+                    const user = await authService.getCurrentUser();
+                    if (user) {
+                        setUser(user);
+                    } else {
+                        // Token invalid or expired
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('user');
+                        setToken(null);
+                        setUser(null);
+                    }
+                } catch (error) {
+                    console.error('Auth initialization error:', error);
+                    localStorage.removeItem('token');
+                    setToken(null);
+                }
+            }
+            setIsLoading(false);
+        };
+
+        initAuth();
     }, [token]);
 
     const login = async (email, password) => {
