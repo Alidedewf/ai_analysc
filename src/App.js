@@ -6,9 +6,14 @@ import { AuthPage } from './pages/AuthPage/AuthPage';
 
 import { DashboardPage } from './pages/DashboardPage/DashboardPage';
 
+import { CustomCursor } from './components/CustomCursor/CustomCursor';
+import { BackgroundAnimation } from './components/BackgroundAnimation/BackgroundAnimation';
+
 const App = () => {
   return (
     <AuthProvider>
+      <CustomCursor />
+      <BackgroundAnimation />
       <Router>
         <Routes>
           <Route path="/login" element={<AuthPage />} />

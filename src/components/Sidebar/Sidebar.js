@@ -103,13 +103,40 @@ export const Sidebar = () => {
             )}
 
             <div className={styles.header}>
-                <div className={styles.logo}>
-                    <div className={styles.logoIcon}>F</div>
-                    <span className={styles.logoText}>AI business analyst</span>
+                {/* <div className={styles.branding}>
+                    <div className={styles.logo}>
+                        <div className={styles.logoIcon}>F</div>
+                    </div>
+                    <button className={styles.notificationBtn} title="Нет новых уведомлений">
+                        <Bell size={20} />
+                    </button>
+                </div> */}
+
+                <div className={styles.userContainer}>
+                    <div className={styles.userProfile}>
+                        <div className={styles.avatar}>
+                            {user?.name?.[0] || 'U'}
+                        </div>
+                        <div className={styles.userInfo}>
+                            <span className={styles.userName}>{user?.name}</span>
+                            <span className={styles.userRole}>{user?.role || 'Пользователь'}</span>
+                        </div>
+                    </div>
+
+                    <div className={styles.footerActions}>
+                        {/* Allow 'Business Analyst', 'admin' roles OR specific email */}
+                        {(user?.role === 'Business Analyst' || user?.role === 'admin' || user?.email === 'admin@example.com') && (
+                            <>
+                                <button className={styles.actionBtn} title="Добавить пользователя" onClick={() => setShowUserManagement(true)}>
+                                    <UserPlus size={16} />
+                                </button>
+                                <button className={styles.actionBtn} title="Управление командой" onClick={() => setShowUserManagement(true)}>
+                                    <Users size={16} />
+                                </button>
+                            </>
+                        )}
+                    </div>
                 </div>
-                <button className={styles.notificationBtn} title="Нет новых уведомлений">
-                    <Bell size={20} />
-                </button>
             </div>
 
             <div className={styles.scrollableContent}>
@@ -204,36 +231,15 @@ export const Sidebar = () => {
             </div>
 
             <div className={styles.footer}>
-                <div className={styles.userProfile}>
-                    <div className={styles.avatar}>
-                        {user?.name?.[0] || 'U'}
-                    </div>
-                    <div className={styles.userInfo}>
-                        <span className={styles.userName}>{user?.name}</span>
-                        <span className={styles.userRole}>{user?.role || 'Пользователь'}</span>
-                    </div>
-                </div>
-                {/* Debug log */}
-                {console.log('Sidebar user:', user)}
-
-                {/* Allow 'Business Analyst', 'admin' roles OR specific email */}
-                {(user?.role === 'Business Analyst' || user?.role === 'admin' || user?.email === 'admin@example.com') && (
-                    <>
-                        <button className={styles.logoutBtn} title="Добавить пользователя" onClick={() => setShowUserManagement(true)}>
-                            <UserPlus size={18} />
-                        </button>
-                        <button className={styles.logoutBtn} title="Управление командой" onClick={() => setShowUserManagement(true)}>
-                            <Users size={18} />
-                        </button>
-                    </>
-                )}
-                <button onClick={logout} className={styles.logoutBtn}>
+                <button onClick={logout} className={styles.logoutBtn} title="Выйти">
                     <LogOut size={18} />
+                    <span>Выйти из системы</span>
                 </button>
-            </div>
-            <div style={{ padding: '0 1rem 1rem', fontSize: '10px', color: '#999', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: isSystemHealthy ? '#4caf50' : '#f44336' }}></div>
-                System Status: {isSystemHealthy ? 'Operational' : 'Issues Detected'}
+
+                <div className={styles.systemStatus}>
+                    <div className={styles.statusDot} style={{ backgroundColor: isSystemHealthy ? '#4caf50' : '#f44336' }}></div>
+                    System Status: {isSystemHealthy ? 'Operational' : 'Issues Detected'}
+                </div>
             </div>
         </aside>
     );

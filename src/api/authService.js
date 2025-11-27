@@ -23,7 +23,13 @@ export const authService = {
 
                 // Parse JWT to get user details (name, email)
                 try {
-                    const payload = JSON.parse(atob(data.token.split('.')[1]));
+                    const base64Url = data.token.split('.')[1];
+                    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                    const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
+
+                    const payload = JSON.parse(jsonPayload);
                     const user = {
                         id: payload.sub,
                         name: payload.name,
@@ -159,7 +165,13 @@ export const authService = {
             // Parse JWT to get user details (name, email)
             // We do this instead of calling /me because /me returns a string on the backend
             // and we are not allowed to change the backend.
-            const payload = JSON.parse(atob(token.split('.')[1]));
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+
+            const payload = JSON.parse(jsonPayload);
             const user = {
                 id: payload.sub,
                 name: payload.name,

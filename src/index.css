@@ -17,6 +17,12 @@ body {
     color: var(--text-color);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background-color: transparent;
+}
+
+#root {
+    background-color: transparent;
+    min-height: 100vh;
 }
 
 button {

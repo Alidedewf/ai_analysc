@@ -195,9 +195,9 @@ export const Note = () => {
                         <Onboarding />
                     ) : (
                         <div className={styles.placeholder}>
-                            <span className={styles.metaInfo}>
+                            {/* <span className={styles.metaInfo}>
                                 {taskContent?.type === 'uploaded' ? 'Загруженный документ' : `Тимур Губайдуллин отредактировал ${selectedTask?.date || 'недавно'}`}
-                            </span>
+                            </span> */}
                             <h1 className={styles.title}>
                                 {taskContent?.title || selectedTask?.title || 'Выберите задачу'}
                             </h1>

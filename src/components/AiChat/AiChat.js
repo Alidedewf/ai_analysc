@@ -353,10 +353,10 @@ export const AiChat = ({ isOpen, toggleChat }) => {
         }
     };
 
-    if (!isOpen) return null;
+
 
     return (
-        <div className={styles.aiPanel}>
+        <div className={`${styles.aiPanel} ${isOpen ? styles.open : ''}`}>
             <div className={styles.aiPanelHeader}>
                 <span className={styles.aiPanelTitle}>AI ASSISTANT</span>
                 <div className={styles.aiPanelActions}>
