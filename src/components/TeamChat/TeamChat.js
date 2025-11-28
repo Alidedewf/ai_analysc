@@ -51,7 +51,7 @@ export const TeamChat = ({ isOpen, toggleChat }) => {
         const token = authService.getToken();
         if (!token) return;
 
-        const ws = new WebSocket(`ws://localhost:9000/ws/team?token=${token}`);
+        const ws = new WebSocket(`wss://ai-ba-backend-ff9z.onrender.com/ws/team?token=${token}`);
 
         ws.onopen = () => {
             console.log('Connected to Team Chat');
@@ -79,14 +79,7 @@ export const TeamChat = ({ isOpen, toggleChat }) => {
         if (msg.type === 'new_message' || msg.type === 'message_sent') {
             const payload = msg.payload;
             const otherId = payload.sender_id === authService.getUser()?.id ? payload.receiver_id : payload.sender_id;
-
-            const otherId = payload.sender_id === authService.getUser()?.id ? payload.receiver_id : payload.sender_id;
-            if (msg.type === 'message_sent') {
-                addMessage(payload.receiver_id, payload);
-            } else {
-                // If I received it (new_message):
-                addMessage(payload.sender_id, payload);
-            }
+            addMessage(otherId, payload);
         } else if (msg.type === 'history') {
             const { other_user_id, messages } = msg.payload;
             setMessages(prev => ({

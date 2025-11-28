@@ -41,7 +41,7 @@ export const AuthForm = () => {
         setIsLoading(true);
         try {
             await login(formData.email, formData.password);
-            navigate('/app');
+            navigate('/');
         } catch (error) {
             console.error(error);
             alert('Login failed. ' + error.message);

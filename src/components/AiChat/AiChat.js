@@ -135,7 +135,7 @@ export const AiChat = ({ isOpen, toggleChat }) => {
         if (!token) return;
 
         const currentSessionId = sessionId || 0; // Use 0 or null if no session ID is available yet
-        const wsUrl = `ws://localhost:9000/ws/agent?token=${token}&session_id=${currentSessionId}`;
+        const wsUrl = `wss://ai-ba-backend-ff9z.onrender.com/ws/agent?token=${token}&session_id=${currentSessionId}`;
         const ws = new WebSocket(wsUrl);
 
         ws.onopen = () => {
