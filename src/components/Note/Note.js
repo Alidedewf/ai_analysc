@@ -91,11 +91,89 @@ export const Note = () => {
         let parsedData = data;
         if (typeof data === 'string') {
             try {
-                parsedData = JSON.parse(data);
+                // Check if it looks like base64 (starts with eyJ which is {" in base64)
+                if (data.startsWith('eyJ')) {
+                    try {
+                        // Fix for UTF-8 characters: use TextDecoder
+                        const binaryString = atob(data);
+                        const bytes = new Uint8Array(binaryString.length);
+                        for (let i = 0; i < binaryString.length; i++) {
+                            bytes[i] = binaryString.charCodeAt(i);
+                        }
+                        const decoded = new TextDecoder('utf-8').decode(bytes);
+                        parsedData = JSON.parse(decoded);
+                    } catch (base64Error) {
+                        console.error("Failed to decode base64", base64Error);
+                        // Fallback to trying to parse original string
+                        parsedData = JSON.parse(data);
+                    }
+                } else {
+                    parsedData = JSON.parse(data);
+                }
             } catch (e) {
                 console.error("Failed to parse structured content", e);
-                return <div className={styles.error}>Error parsing structured content</div>;
+                console.log("Raw data causing error:", data);
+                return <div className={styles.error}>Error parsing structured content: {e.message}. Check console for details.</div>;
             }
+        } else {
+            console.log("Structured content is already an object:", data);
+        }
+
+        // Check for SmartAnalysisData structure (from Chat flow)
+        if (parsedData.smart_requirements || parsedData.confluence) {
+            return (
+                <div className={styles.businessRequirement}>
+                    {parsedData.confluence && (
+                        <div className={styles.brSection}>
+                            <h1 className={styles.brTitle}>{parsedData.confluence.title}</h1>
+                            <div className={styles.markdownContent}>
+                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                    {parsedData.confluence.content}
+                                </ReactMarkdown>
+                            </div>
+                        </div>
+                    )}
+
+                    {parsedData.smart_requirements && (
+                        <div className={styles.brSection}>
+                            <h2 className={styles.brTitle}>SMART Requirements</h2>
+                            <div className={styles.brGrid}>
+                                <div className={styles.brItem}><strong>Specific:</strong> {parsedData.smart_requirements.specific}</div>
+                                <div className={styles.brItem}><strong>Measurable:</strong> {parsedData.smart_requirements.measurable}</div>
+                                <div className={styles.brItem}><strong>Achievable:</strong> {parsedData.smart_requirements.achievable}</div>
+                                <div className={styles.brItem}><strong>Relevant:</strong> {parsedData.smart_requirements.relevant}</div>
+                                <div className={styles.brItem}><strong>Time-bound:</strong> {parsedData.smart_requirements.time_bound}</div>
+                            </div>
+                        </div>
+                    )}
+
+                    {parsedData.summary && !parsedData.confluence && (
+                        <div className={styles.brSection}>
+                            <h2 className={styles.brTitle}>Summary</h2>
+                            <p>{parsedData.summary}</p>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // Check for AnalysisData structure (from Request flow)
+        const hasContent = parsedData.project || parsedData.executive_summary || parsedData.project_objectives || parsedData.project_scope || parsedData.business_requirements || parsedData.functional_requirements;
+
+        if (!hasContent) {
+            console.warn("Parsed data does not match expected structure:", parsedData);
+            return (
+                <div className={styles.businessRequirement}>
+                    <div className={styles.error}>
+                        <h3>Structure Mismatch</h3>
+                        <p>The document data was parsed but doesn't match the expected format.</p>
+                        <details>
+                            <summary>View Raw Data</summary>
+                            <pre style={{ whiteSpace: 'pre-wrap', fontSize: '12px' }}>{JSON.stringify(parsedData, null, 2)}</pre>
+                        </details>
+                    </div>
+                </div>
+            );
         }
 
         return (
@@ -131,7 +209,7 @@ export const Note = () => {
                 )}
 
                 {parsedData.project_scope && (
-                    <div className={styles.brSection}>
+                    <div className={`${styles.brSection} ${styles.sectionScope}`}>
                         <h2 className={styles.brTitle}>Scope</h2>
                         <div className={styles.scopeContainer}>
                             <div className={styles.scopeCol}>
@@ -147,7 +225,7 @@ export const Note = () => {
                 )}
 
                 {parsedData.business_requirements && (
-                    <div className={styles.brSection}>
+                    <div className={`${styles.brSection} ${styles.sectionBusinessReq}`}>
                         <h2 className={styles.brTitle}>Business Requirements</h2>
                         <table className={styles.brTable}>
                             <thead>
@@ -172,8 +250,54 @@ export const Note = () => {
                     </div>
                 )}
 
+                {parsedData.key_stakeholders && (
+                    <div className={`${styles.brSection} ${styles.sectionStakeholders}`}>
+                        <h2 className={styles.brTitle}>Key Stakeholders</h2>
+                        <table className={styles.brTable}>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Role</th>
+                                    <th>Duties</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {parsedData.key_stakeholders.map((st, i) => (
+                                    <tr key={i}>
+                                        <td>{st.name}</td>
+                                        <td>{st.job_role}</td>
+                                        <td>{st.duties}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+
+                {parsedData.project_constraints && (
+                    <div className={`${styles.brSection} ${styles.sectionConstraints}`}>
+                        <h2 className={styles.brTitle}>Project Constraints</h2>
+                        <table className={styles.brTable}>
+                            <thead>
+                                <tr>
+                                    <th>Constraint</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {parsedData.project_constraints.map((c, i) => (
+                                    <tr key={i}>
+                                        <td>{c.constraint}</td>
+                                        <td>{c.description}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+
                 {parsedData.functional_requirements && (
-                    <div className={styles.brSection}>
+                    <div className={`${styles.brSection} ${styles.sectionFunctionalReq}`}>
                         <h2 className={styles.brTitle}>Functional Requirements</h2>
                         {parsedData.functional_requirements.map((mod, i) => (
                             <div key={i} className={styles.moduleBlock}>
