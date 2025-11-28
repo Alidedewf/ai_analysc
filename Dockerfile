@@ -14,7 +14,7 @@ RUN npm run build   # Vite -> dist, CRA -> build (см. ниже)
 # ----- run stage -----
 FROM node:18-alpine AS runner
 
-WORKDIR /app
+WORKDIR /
 
 # Устанавливаем простой статический сервер
 RUN npm install -g serve
