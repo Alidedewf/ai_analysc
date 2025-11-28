@@ -80,7 +80,7 @@ export const TeamChat = ({ isOpen, toggleChat }) => {
             const payload = msg.payload;
             const otherId = payload.sender_id === authService.getUser()?.id ? payload.receiver_id : payload.sender_id;
 
-
+            const otherId = payload.sender_id === authService.getUser()?.id ? payload.receiver_id : payload.sender_id;
             if (msg.type === 'message_sent') {
                 addMessage(payload.receiver_id, payload);
             } else {

@@ -1,24 +1,32 @@
-# Stage 1: Build the React application
+# ----- build stage -----
 FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files and install dependencies
-COPY package.json package-lock.json ./
-RUN npm ci
+# Установка зависимостей
+COPY package*.json ./
+RUN npm install
 
-# Copy source code and build
+# Копируем исходники и собираем
 COPY . .
-RUN npm run build
+RUN npm run build   # Vite -> dist, CRA -> build (см. ниже)
 
-# Stage 2: Serve the application with Nginx
-FROM nginx:alpine
+# ----- run stage -----
+FROM node:18-alpine AS runner
 
-# Copy built assets from builder stage
-COPY --from=builder /app/dist /usr/share/nginx/html
+WORKDIR /app
 
-# Expose port 80
-EXPOSE 80
+# Устанавливаем простой статический сервер
+RUN npm install -g serve
 
-# Start Nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Копируем собранный фронт
+# Если у тебя Vite:
+COPY --from=builder /app/dist ./dist
+# Если Create React App — нужно поменять на:
+# COPY --from=builder /app/build ./dist
+
+EXPOSE 3000
+
+# -s = single-page app (SPA), все роуты → index.html
+# -l 3000 = порт
+CMD ["serve", "-s", "dist", "-l", "3000"]
