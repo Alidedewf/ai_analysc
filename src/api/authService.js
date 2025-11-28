@@ -1,4 +1,4 @@
-const API_URL = 'https://ai-ba-backend.onrender.com';
+const API_URL = 'http://localhost:9000';
 
 export const authService = {
     async login(email, password) {

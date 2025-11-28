@@ -1,6 +1,6 @@
 import { authService } from './authService';
 
-const API_URL = 'https://ai-ba-backend.onrender.com';
+const API_URL = 'http://localhost:9000';
 
 export const dashboardService = {
     async fetchSessions() {
