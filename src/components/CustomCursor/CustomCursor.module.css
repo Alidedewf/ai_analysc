@@ -13,6 +13,8 @@
     margin-left: -20px;
     margin-top: -20px;
     will-change: transform;
+    /* Smooth transition for non-transform properties like color/opacity */
+    transition: width 0.3s, height 0.3s, background-color 0.2s, border-color 0.2s, opacity 0.2s;
 }
 
 .cursorInner {
@@ -21,7 +23,8 @@
     left: 0;
     width: 8px;
     height: 8px;
-    background-color: #000;
+    background-color: #7d1d40;
+    /* Brand color */
     border-radius: 50%;
     pointer-events: none;
     z-index: 10000;
@@ -29,6 +32,7 @@
     margin-left: -4px;
     margin-top: -4px;
     will-change: transform;
+    box-shadow: 0 0 4px rgba(125, 29, 64, 0.4);
 }
 
 /* Hide default cursor globally when this component is mounted */

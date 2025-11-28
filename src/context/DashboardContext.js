@@ -43,7 +43,8 @@ export const DashboardProvider = ({ children }) => {
             newContent[`draft-${draft.id}`] = {
                 type: 'document',
                 title: draft.title,
-                content: draft.content
+                content: draft.content,
+                structuredContent: draft.structured_content
             };
         };
 

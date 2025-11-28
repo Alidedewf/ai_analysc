@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
 import { X, UserPlus, Check } from 'lucide-react';
 import { authService } from '../../api/authService';
 import styles from './UserManagement.module.css';
@@ -37,9 +38,9 @@ export const UserManagement = ({ onClose }) => {
         }
     };
 
-    return (
-        <div className={styles.overlay}>
-            <div className={styles.modal}>
+    return ReactDOM.createPortal(
+        <div className={styles.overlay} onClick={onClose}>
+            <div className={styles.modal} onClick={e => e.stopPropagation()}>
                 <div className={styles.header}>
                     <h2>Управление командой</h2>
                     <button onClick={onClose} className={styles.closeBtn}>
@@ -122,6 +123,7 @@ export const UserManagement = ({ onClose }) => {
                     </form>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };

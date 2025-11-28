@@ -86,6 +86,107 @@ export const Note = () => {
 
     const taskContent = selectedTask ? allContent[selectedTask.id] : null;
 
+    const renderBusinessRequirement = (data) => {
+        if (!data) return null;
+        let parsedData = data;
+        if (typeof data === 'string') {
+            try {
+                parsedData = JSON.parse(data);
+            } catch (e) {
+                console.error("Failed to parse structured content", e);
+                return <div className={styles.error}>Error parsing structured content</div>;
+            }
+        }
+
+        return (
+            <div className={styles.businessRequirement}>
+                {parsedData.project && (
+                    <div className={styles.brSection}>
+                        <h2 className={styles.brTitle}>Project Details</h2>
+                        <div className={styles.brGrid}>
+                            <div className={styles.brItem}><strong>Name:</strong> {parsedData.project.name}</div>
+                            <div className={styles.brItem}><strong>Manager:</strong> {parsedData.project.manager}</div>
+                            <div className={styles.brItem}><strong>Date:</strong> {parsedData.project.date_submitted}</div>
+                            <div className={styles.brItem}><strong>Status:</strong> {parsedData.project.document_status}</div>
+                        </div>
+                    </div>
+                )}
+
+                {parsedData.executive_summary && (
+                    <div className={styles.brSection}>
+                        <h2 className={styles.brTitle}>Executive Summary</h2>
+                        <p><strong>Problem:</strong> {parsedData.executive_summary.problem_statement}</p>
+                        <p><strong>Goal:</strong> {parsedData.executive_summary.goal}</p>
+                        <p><strong>Outcome:</strong> {parsedData.executive_summary.expected_outcomes}</p>
+                    </div>
+                )}
+
+                {parsedData.project_objectives && (
+                    <div className={styles.brSection}>
+                        <h2 className={styles.brTitle}>Objectives</h2>
+                        <ul className={styles.brList}>
+                            {parsedData.project_objectives.map((obj, i) => <li key={i}>{obj}</li>)}
+                        </ul>
+                    </div>
+                )}
+
+                {parsedData.project_scope && (
+                    <div className={styles.brSection}>
+                        <h2 className={styles.brTitle}>Scope</h2>
+                        <div className={styles.scopeContainer}>
+                            <div className={styles.scopeCol}>
+                                <h3>In Scope</h3>
+                                <ul>{parsedData.project_scope.in_scope?.map((s, i) => <li key={i}>{s}</li>)}</ul>
+                            </div>
+                            <div className={styles.scopeCol}>
+                                <h3>Out of Scope</h3>
+                                <ul>{parsedData.project_scope.out_of_scope?.map((s, i) => <li key={i}>{s}</li>)}</ul>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {parsedData.business_requirements && (
+                    <div className={styles.brSection}>
+                        <h2 className={styles.brTitle}>Business Requirements</h2>
+                        <table className={styles.brTable}>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Description</th>
+                                    <th>Priority</th>
+                                    <th>Criticality</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {parsedData.business_requirements.map((req, i) => (
+                                    <tr key={i}>
+                                        <td>{req.id}</td>
+                                        <td>{req.description}</td>
+                                        <td>{req.priority_level}</td>
+                                        <td>{req.critical_level}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+
+                {parsedData.functional_requirements && (
+                    <div className={styles.brSection}>
+                        <h2 className={styles.brTitle}>Functional Requirements</h2>
+                        {parsedData.functional_requirements.map((mod, i) => (
+                            <div key={i} className={styles.moduleBlock}>
+                                <h3>{mod.module}</h3>
+                                <ul>{mod.features?.map((f, j) => <li key={j}>{f}</li>)}</ul>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+        );
+    };
+
     const renderSection = (section) => {
         switch (section.type) {
             case 'chart':
@@ -207,6 +308,8 @@ export const Note = () => {
                                     {/* Show RequirementGuide if content is the default placeholder */}
                                     {taskContent.content === 'Chat session content...' ? (
                                         <RequirementGuide onOpenChat={() => togglePanel('ai')} />
+                                    ) : taskContent.structuredContent ? (
+                                        renderBusinessRequirement(taskContent.structuredContent)
                                     ) : taskContent.type === 'uploaded' ? (
                                         <div dangerouslySetInnerHTML={{ __html: taskContent.content }} />
                                     ) : taskContent.type === 'document' ? (
