@@ -36,7 +36,7 @@ export const TeamChat = ({ isOpen, toggleChat }) => {
     const fetchUsers = async () => {
         try {
             const token = authService.getToken();
-            const response = await fetch('http://localhost:9000/api/users', {
+            const response = await fetch('https://ai-ba-backend.onrender.com/api/users', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
@@ -52,7 +52,7 @@ export const TeamChat = ({ isOpen, toggleChat }) => {
         const token = authService.getToken();
         if (!token) return;
 
-        const ws = new WebSocket(`ws://localhost:9000/ws/team?token=${token}`);
+        const ws = new WebSocket(`wss://ai-ba-backend.onrender.com/ws/team?token=${token}`);
 
         ws.onopen = () => {
             console.log('Connected to Team Chat');

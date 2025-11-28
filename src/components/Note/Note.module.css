@@ -798,6 +798,41 @@
     letter-spacing: 0.5px;
 }
 
+/* Code Block for Process Flows */
+.codeBlock {
+    background: #F4F6F8;
+    border: 1px solid #EAECEF;
+    border-radius: 8px;
+    padding: 16px;
+    overflow-x: auto;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    font-size: 13px;
+    color: #24292E;
+    margin-top: 12px;
+}
+
+.codeBlock pre {
+    margin: 0;
+    white-space: pre-wrap;
+}
+
+/* User Stories specific */
+.brItem p {
+    margin: 0 0 8px 0;
+}
+
+/* Use Case specific */
+.moduleBlock ol {
+    padding-left: 20px;
+    margin: 0;
+}
+
+.moduleBlock ol li {
+    margin-bottom: 8px;
+    font-size: 15px;
+    color: #4A5568;
+}
+
 .error {
     color: #E63946;
     padding: 20px;

@@ -71,6 +71,14 @@ export const AiChat = ({ isOpen, toggleChat }) => {
                                         questions: data.questions,
                                         text: data.title || 'Please answer the following questions:'
                                     };
+                                } else if (data.type === 'requirements') {
+                                    const docName = data.data?.project?.name || 'Business Analysis Report';
+                                    return {
+                                        id: msg.ID,
+                                        author: msg.author,
+                                        type: 'doc_generated',
+                                        text: `Готово! Я сформировал документ "${docName}". Вы можете найти его в списке слева или он уже открыт на главном экране.`
+                                    };
                                 } else if (data.type === 'error') {
                                     return {
                                         id: msg.ID,
@@ -126,7 +134,8 @@ export const AiChat = ({ isOpen, toggleChat }) => {
         const token = authService.getToken();
         if (!token) return;
 
-        const wsUrl = `ws://localhost:9000/ws/agent?token=${token}`;
+        const currentSessionId = sessionId || 0; // Use 0 or null if no session ID is available yet
+        const wsUrl = `wss://ai-ba-backend.onrender.com/ws/agent?token=${token}&session_id=${currentSessionId}`;
         const ws = new WebSocket(wsUrl);
 
         ws.onopen = () => {
@@ -221,6 +230,11 @@ export const AiChat = ({ isOpen, toggleChat }) => {
                             aiMsg.questions = data.questions;
                             aiMsg.title = data.title;
                             aiMsg.text = data.title || 'Please answer the following questions:';
+                        } else if (data.type === 'requirements') {
+                            // Ignore requirements JSON in ai_done because we handle doc_generated separately
+                            // OR we can show a "Document Created" message here too to be safe
+                            aiMsg.type = 'doc_generated';
+                            aiMsg.text = `📄 Document Created: "${data.data?.project?.name || 'Business Analysis Report'}"`;
                         } else if (data.type === 'error') {
                             aiMsg.type = 'error';
                             aiMsg.text = data.message || 'An error occurred';
@@ -257,11 +271,30 @@ export const AiChat = ({ isOpen, toggleChat }) => {
                 // Optionally show error in UI
                 break;
             case 'doc_generated':
-                setMessages(prev => [...prev, {
-                    id: Date.now(),
-                    author: 'ai',
-                    text: `📄 Document Created: "${message.payload.title || 'Business Analysis Report'}"`
-                }]);
+                // If we already added a doc_generated message from ai_done (requirements type), we might duplicate.
+                // But usually doc_generated comes BEFORE ai_done or parallel.
+                // To avoid duplicates, we could check if the last message is already a doc_generated one?
+                // For now, let's just allow it, or maybe we don't need to handle 'requirements' in ai_done if doc_generated is reliable.
+                // BUT, doc_generated is NOT saved to DB. So ai_done IS the persistence.
+                // So we MUST handle ai_done.
+                // If we handle ai_done, we might get double messages in the live session.
+                // Let's filter duplicates in setMessages? Or just accept it for now.
+                // Actually, if we handle 'requirements' in ai_done, we should probably IGNORE doc_generated if we just processed it?
+                // No, doc_generated triggers refreshData().
+
+                setMessages(prev => {
+                    // Check if we just added a similar message
+                    const lastMsg = prev[prev.length - 1];
+                    if (lastMsg && lastMsg.text && lastMsg.text.includes('Готово! Я сформировал документ')) {
+                        return prev;
+                    }
+                    const docName = message.payload.title || 'Business Analysis Report';
+                    return [...prev, {
+                        id: Date.now(),
+                        author: 'ai',
+                        text: `Готово! Я сформировал документ "${docName}". Вы можете найти его в списке слева или он уже открыт на главном экране.`
+                    }];
+                });
                 refreshData();
                 setIsThinking(false);
                 break;

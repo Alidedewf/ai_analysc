@@ -296,6 +296,74 @@ export const Note = () => {
                     </div>
                 )}
 
+                {/* Analytical Artifacts */}
+                {parsedData.user_stories && (
+                    <div className={styles.brSection}>
+                        <h2 className={styles.brTitle}>User Stories</h2>
+                        <div className={styles.brGrid}>
+                            {parsedData.user_stories.map((us, i) => (
+                                <div key={i} className={styles.brItem} style={{ display: 'block' }}>
+                                    <p><strong>{us.id}:</strong> As a <strong>{us.role}</strong>, I want to <strong>{us.action}</strong>, so that <strong>{us.benefit}</strong>.</p>
+                                    {us.acceptance_criteria && (
+                                        <ul className={styles.brList}>
+                                            {us.acceptance_criteria.map((ac, j) => <li key={j}>{ac}</li>)}
+                                        </ul>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {parsedData.use_cases && (
+                    <div className={styles.brSection}>
+                        <h2 className={styles.brTitle}>Use Cases</h2>
+                        {parsedData.use_cases.map((uc, i) => (
+                            <div key={i} className={styles.moduleBlock}>
+                                <h3>{uc.id}: {uc.name}</h3>
+                                <p>{uc.description}</p>
+                                <p><strong>Actors:</strong> {uc.actors?.join(', ')}</p>
+                                <p><strong>Pre-conditions:</strong> {uc.pre_conditions}</p>
+                                <div className={styles.scopeContainer}>
+                                    <div className={styles.scopeCol}>
+                                        <h4>Main Flow</h4>
+                                        <ol>{uc.main_flow?.map((step, j) => <li key={j}>{step}</li>)}</ol>
+                                    </div>
+                                    <div className={styles.scopeCol}>
+                                        <h4>Alternative Flows</h4>
+                                        <ul>{uc.alternative_flows?.map((step, j) => <li key={j}>{step}</li>)}</ul>
+                                    </div>
+                                </div>
+                                <p><strong>Post-conditions:</strong> {uc.post_conditions}</p>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {parsedData.process_flows && (
+                    <div className={styles.brSection}>
+                        <h2 className={styles.brTitle}>Process Flows</h2>
+                        {parsedData.process_flows.map((pf, i) => (
+                            <div key={i} className={styles.moduleBlock}>
+                                <h3>{pf.name}</h3>
+                                <p>{pf.description}</p>
+                                <div className={styles.codeBlock}>
+                                    <pre>{pf.mermaid_code}</pre>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {parsedData.leading_indicators && (
+                    <div className={styles.brSection}>
+                        <h2 className={styles.brTitle}>Leading Indicators (KPIs)</h2>
+                        <ul className={styles.brList}>
+                            {parsedData.leading_indicators.map((kpi, i) => <li key={i}>{kpi}</li>)}
+                        </ul>
+                    </div>
+                )}
+
                 {parsedData.functional_requirements && (
                     <div className={`${styles.brSection} ${styles.sectionFunctionalReq}`}>
                         <h2 className={styles.brTitle}>Functional Requirements</h2>
