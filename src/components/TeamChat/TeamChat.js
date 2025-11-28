@@ -6,14 +6,13 @@ import { authService } from '../../api/authService';
 export const TeamChat = ({ isOpen, toggleChat }) => {
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
-    const [messages, setMessages] = useState({}); // { userId: [msgs] }
+    const [messages, setMessages] = useState({});
     const [input, setInput] = useState('');
     const [isConnected, setIsConnected] = useState(false);
     const wsRef = useRef(null);
     const messagesEndRef = useRef(null);
 
     const currentUser = authService.getUser();
-    console.log('TeamChat currentUser:', currentUser); // Debug log
     const isAdmin = currentUser?.role === 'Business Analyst' || currentUser?.role === 'admin';
 
     useEffect(() => {
@@ -36,7 +35,7 @@ export const TeamChat = ({ isOpen, toggleChat }) => {
     const fetchUsers = async () => {
         try {
             const token = authService.getToken();
-            const response = await fetch('http://localhost:9000/api/users', {
+            const response = await fetch('https://ai-ba-backend-ff9z.onrender.com/api/users', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
@@ -81,12 +80,7 @@ export const TeamChat = ({ isOpen, toggleChat }) => {
             const payload = msg.payload;
             const otherId = payload.sender_id === authService.getUser()?.id ? payload.receiver_id : payload.sender_id;
 
-            // For message_sent (echo), sender is me, receiver is other.
-            // For new_message, sender is other, receiver is me.
-            // Wait, authService.getUser() might not have ID easily available if it's just name/email in local storage.
-            // Let's rely on the payload structure.
 
-            // If I sent it (message_sent):
             if (msg.type === 'message_sent') {
                 addMessage(payload.receiver_id, payload);
             } else {
@@ -121,14 +115,6 @@ export const TeamChat = ({ isOpen, toggleChat }) => {
     };
 
 
-
-    // Fix for the double send above and clarification:
-    // Backend: `var msg wsMsg` -> `json.Unmarshal(data, &msg)`
-    // `msg.Payload` is `json.RawMessage`.
-    // Then `json.Unmarshal(msg.Payload, &p)`.
-    // So if I send `{ "type": "...", "payload": { "receiver_id": 1, ... } }`, 
-    // `msg.Payload` will be `{"receiver_id": 1, ...}` (bytes).
-    // Unmarshaling that into `p` works.
 
     const handleSend = () => {
         if (!input.trim() || !selectedUser || !wsRef.current) return;
@@ -206,11 +192,6 @@ export const TeamChat = ({ isOpen, toggleChat }) => {
                 <>
                     <div className={styles.messagesList}>
                         {(messages[selectedUser.id] || []).map((msg, idx) => {
-                            // Determine if message is from me or them
-                            // We need to know my ID. 
-                            // Since we don't have it easily, we can check sender_id.
-                            // If sender_id === selectedUser.id, it's from them.
-                            // Else it's from me.
                             const isMe = msg.sender_id !== selectedUser.id;
                             return (
                                 <div key={idx} className={`${styles.messageBubble} ${isMe ? styles.myMessage : styles.theirMessage}`}>

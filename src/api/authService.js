@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:9000';
+const API_URL = 'https://ai-ba-backend-ff9z.onrender.com';
 
 export const authService = {
     async login(email, password) {
@@ -21,7 +21,7 @@ export const authService = {
             if (data.token) {
                 localStorage.setItem('token', data.token);
 
-                // Parse JWT to get user details (name, email)
+                localStorage.setItem('token', data.token);
                 try {
                     const base64Url = data.token.split('.')[1];
                     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -69,7 +69,7 @@ export const authService = {
             if (data.token) {
                 localStorage.setItem('token', data.token);
 
-                // Parse JWT to get user details (same as login)
+                localStorage.setItem('token', data.token);
                 try {
                     const base64Url = data.token.split('.')[1];
                     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -181,9 +181,6 @@ export const authService = {
         if (!token) return null;
 
         try {
-            // Parse JWT to get user details (name, email)
-            // We do this instead of calling /me because /me returns a string on the backend
-            // and we are not allowed to change the backend.
             const base64Url = token.split('.')[1];
             const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
             const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {

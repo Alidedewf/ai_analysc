@@ -1,6 +1,6 @@
 import { authService } from './authService';
 
-const API_URL = 'http://localhost:9000';
+const API_URL = 'https://ai-ba-backend-ff9z.onrender.com';
 
 export const dashboardService = {
     async fetchSessions() {
@@ -189,7 +189,7 @@ export const dashboardService = {
                 },
                 body: JSON.stringify({
                     title: title,
-                    request: content // Backend expects 'request' field
+                    request: content
                 })
             });
 
@@ -219,7 +219,6 @@ export const dashboardService = {
                 throw new Error('Failed to download draft');
             }
 
-            // Return blob for download
             return await response.blob();
         } catch (error) {
             console.error('Error downloading draft:', error);
